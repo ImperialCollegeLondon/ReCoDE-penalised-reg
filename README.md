@@ -1,6 +1,6 @@
 <!-- Your Project title, make it sound catchy! -->
 
-# Project title
+# Predicting colitis using penalised regression
 
 <!-- Provide a short description to your project -->
 
