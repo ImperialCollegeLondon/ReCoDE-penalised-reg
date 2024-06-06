@@ -1,5 +1,5 @@
-site_name: ReCoDE Exemplar Template
-repo_url: https://github.com/ImperialCollegeLondon/ReCoDE-exemplar-template
+site_name: ReCoDE Predicting colitis using penalised regression
+repo_url: https://github.com/ImperialCollegeLondon/ReCoDE-penalised-reg
 
 ## Please change the above name and link to point to your exemplar
 ## Please do not change the theme or most other options below 
