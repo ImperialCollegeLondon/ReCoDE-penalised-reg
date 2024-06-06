@@ -6,20 +6,19 @@
 
 ## Description
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam vitae pulvinar
-mauris. Praesent sollicitudin rutrum mauris sed congue. Donec vel orci elit.
-Phasellus luctus sodales elementum. Donec lacinia semper lorem, volutpat
-molestie arcu bibendum mollis. Nulla nec massa vitae sapien varius vulputate
-vel vitae ex. Curabitur convallis iaculis elit at faucibus. Sed eget facilisis
-orci, ut consequat neque.
+The field of predictive medicine is becoming increasingly popular. A key challenge is dealing with the high-dimensionality of genetics, where the number of genes (factors) is far larger than the number of patients (observations), resulting in classical statistical methods breaking down. This has lead to the rise of penalised regression, where a penalty is applied to the factors to induce sparsity, so that a large majority of factors are deemed irrelevant, allowing for statistical inference to occur. One popular penalised approach, covered in most undergraduate and graduate statistics modules, is the lasso. The lasso has gained a large amount of traction over the last 20 years, with many extensions also proposed. 
+
+The lasso has found particular use in genetics, as it is computationally efficient and is able to select relevant genes as being associated with a disease. One particular useful extension is the group lasso, which can apply this penalisation onto groups of variables. As genes are naturally found in groups (pathways), this extension has also found extensive use in genetics. One final approach is the sparse-group lasso, which combines the two. The project would show how to apply these three methods to predicting whether a patient has colitis. 
+
 
 <!-- What should the students going through your exemplar learn -->
 
 ## Learning Outcomes
 
-- Skill 1
-- Skill 2
-- Skill 3
+- Provide an insight into how genetics data can be downloaded, cleaned, and prepared for use in analysis – this gives a good insight into how general R data manipulation works.
+-	Give the student an introduction into predictive modelling by showing how a fitted model can be used to form predictions.
+-	Demonstrate how the wide class of penalised regression models work and how they can be implemented in R. This will provide mathematical and statistical background to how these methods work, which will touch upon important regression topics that form the foundation for most models the students will see further down their academic paths.
+
 
 <!-- How long should they spend reading and practising using your Code.
 Provide your best estimate -->
