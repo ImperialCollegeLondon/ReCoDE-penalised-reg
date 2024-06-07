@@ -4,6 +4,14 @@
 
 <!-- Provide a short description to your project -->
 
+## Timeline
+1.	Document genetics data. This step will involve documenting the various genetic data sources, how the data is accessed and the licenses for each dataset.  
+2.	Download data. This step will be writing code for the downloading and processing of the genetics data. This will involve several cleaning and checking steps to ensure the data is suitable to be used for model fitting.
+3.	Model background. This step is documenting and explaining the basics behind the models that are being used, so will involve basic mathematical and optimisation theory.
+4.	Initial model fitting. This will involve applying basic models to the genetics data to get a feel of what works well, how the fitting can be improved, and investigating signs of deficiencies in the models.
+5.	Better models. This step involves describing how the models used so far can be improved and options for more advanced models. These models will then be implemented in R.
+6.	Prediction: This step will use all the models discussed so far to form predictions on the colitis data and evaluate the accuracy of the predictions.
+
 ## Description
 
 The field of predictive medicine is becoming increasingly popular. A key challenge is dealing with the high-dimensionality of genetics, where the number of genes (factors) is far larger than the number of patients (observations), resulting in classical statistical methods breaking down. This has lead to the rise of penalised regression, where a penalty is applied to the factors to induce sparsity, so that a large majority of factors are deemed irrelevant, allowing for statistical inference to occur. One popular penalised approach, covered in most undergraduate and graduate statistics modules, is the lasso. The lasso has gained a large amount of traction over the last 20 years, with many extensions also proposed. 
