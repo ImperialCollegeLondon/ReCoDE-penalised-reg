@@ -1,0 +1,17 @@
+Data structure:
+-The input data matrix contains gene expression data. The genes are grouped into pathways, which form the group indexes, used in the models.
+-The response data is binary labels, indicating whether a patient has colitis (1) or does not (0).
+-The dataset contains blood cells expression data, which is used to determine whether a patient has an inflammatory bowel disease (Ulcerative colitis and Crohn’s).
+-Data for 127 patients is present, with 85 of those having a inflammatory bowel disease and 42 being control patients.
+-Initially 22283 genes are present, but this is reduced to about 12000 after cleaning and pathway matching.
+
+Data source:
+-The gene expression data and response were both downloaded from the Gene Expression Omnibus (GEO) database, run by the National Center for Biotechnology Information (NCBI): https://www.ncbi.nlm.nih.gov/geo/.
+--The particular dataset is has ID GDS1615: https://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=GDS1615.
+--The data can be downloaded directly into R using getGEO.
+-The gene sets (pathway) data was downloaded from the Human MSigDB Collection, run by the Gene Set Enrichment Analysis (GSEA): https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp.
+--The gene sets need to be downloaded manually from the provided link.
+
+License:
+-The expression data were downloaded from GEO, which places no restriction on the use of the data.
+-The gene sets were downloaded from GSEA and are available under the Creative Commons Attribution 4.0 International.
