@@ -4,6 +4,9 @@ Data structure:
 -The dataset contains blood cells expression data, which is used to determine whether a patient has an inflammatory bowel disease (Ulcerative colitis and Crohn’s).
 -Data for 127 patients is present, with 85 of those having a inflammatory bowel disease and 42 being control patients.
 -Initially 22283 genes are present, but this is reduced to about 12000 after cleaning and pathway matching.
+-The pipeline can be easily adapted to be used for different gene datasets and pathways. The following needs to be changed in download-gene-expression.R
+--The dataset can be changed by changing gds1615 <- getGEO('GDS1615') to have a different dataset ID. However, note that different cleaning and response mappings may be needed for different datasets.
+--To use a different pathway, download the relevant pathway from GSEA and change filename <- "c3.all.v2023.2.Hs.symbols.gmt" accordingly.
 
 Data source:
 -The gene expression data and response were both downloaded from the Gene Expression Omnibus (GEO) database, run by the National Center for Biotechnology Information (NCBI): https://www.ncbi.nlm.nih.gov/geo/.
@@ -11,6 +14,8 @@ Data source:
 --The data can be downloaded directly into R using getGEO.
 -The gene sets (pathway) data was downloaded from the Human MSigDB Collection, run by the Gene Set Enrichment Analysis (GSEA): https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp.
 --The gene sets need to be downloaded manually from the provided link.
+--There are 9 human gene sets available and the pathway matching is relatively similar across all, so we will use only the c3 pathway, which contains the regulatory target gene sets.
+--The genesets for this repo were downloaded on 13/06/2024.
 
 License:
 -The expression data were downloaded from GEO, which places no restriction on the use of the data.

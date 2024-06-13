@@ -1,7 +1,9 @@
 # Set up
-source("http://www.bioconductor.org/biocLite.R")
-biocLite("GEOquery")
-library(Biobase)
+global_dir = '' # add the path for where the recode folder sits
+
+#source("http://www.bioconductor.org/biocLite.R")
+#biocLite("GEOquery")
+#library(Biobase)
 library(GEOquery)
 library(GSA)
 
@@ -19,10 +21,10 @@ X <- t(exprs(eset))
 Gene.Identifiers <- Table(gds1615)[,2]
 
 # Set working directory to location of gene sets
-setwd("")
+setwd(paste0(global_dir,"ReCoDE-penalised-reg/data/gene-sets"))
 
 # Load the gene set data
-filename <- "c3.all.v2023.1.Hs.symbols.gmt"
+filename <- "c3.all.v2023.2.Hs.symbols.gmt"
 import_data <- GSA.read.gmt(filename)
 
 # Initialize index vector
@@ -43,8 +45,8 @@ group_index <- rep(0, ncol(X))
 
 # Assign group indices to the genes
 for(i in 1:num_bands) {
-  for(j in 1:length(Gene.set.info$genesets[[i]])) {
-    change.ind <- match(Gene.set.info$genesets[[i]][j], genenames)
+  for(j in 1:length(import_data$genesets[[i]])) {
+    change.ind <- match(import_data$genesets[[i]][j], genenames)
     if(!is.na(change.ind) && group_index[change.ind] == 0) {
       group_index[change.ind] <- i
     }

@@ -1,5 +1,3 @@
 Downloading data:
--Bioconductor
--Biobase
 -GEOquery
 -GSA
