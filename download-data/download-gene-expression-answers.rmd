@@ -1,13 +1,13 @@
 **Q1: download the genetics dataset with the ID `GDS807`. Do you get the same objects?** 
 We extract the data as before
-```r
+```{r}
 raw_data <- getGEO('GDS807')
 eset_data <- GDS2eSet(raw_data, do.log2 = TRUE)
 ```
 We notice that an error regarding NaNs is obtained. This is due to the log transformation working on missing data, but is not a concern as we will filter this out anyway. As an aside, look at Question 1b below for the first steps to running the analysis without log transformtions.
 
 We can check the objects in the `eset_data` object
-```r
+```{r}
 head(eset_data$sample)
 table(eset_data$disease.state)
 head(eset_data$sample)

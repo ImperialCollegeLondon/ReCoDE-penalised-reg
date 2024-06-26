@@ -54,7 +54,7 @@ A final topic of interest is the grouping structure of genes. Genes are often gr
 
 ## Downloading genetics data
 First, we load a few useful packages:
-```r
+```{r}
 library(GEOquery)
 library(GSA)
 library(Biobase)
@@ -72,16 +72,16 @@ eset_data <- GDS2eSet(raw_data, do.log2 = TRUE)
 We also used this opportunity to log transform the data. A Log2 transformation is commonly applied to gene expression data to stabilize the variance across the range of expression values and to make the data more normally distributed, which is a useful property in statistical modelling.
 
 Now we can see that this object behaves much more like a traditional R object, with three elements: `sample`, `disease.state`, `description`. Let's see what these are:
-```r
+```{r}
 head(eset_data$sample)
 ```
 This contains the sample ID for the patients, which we will not be using.
-```r
+```{r}
 table(eset_data$disease.state)
 ```
 As the name suggests, this contains the disease state of the patients. You can see that there are three levels, with 42 control patients and 85 patients suffering from inflammatory bowel disease.
 This is our response variable, y, which we will need to encode later to 0 and 1.
-```r
+```{r}
 head(eset_data$sample)
 ```
 This contains the description of the samples, which we will also not be using.
@@ -99,20 +99,20 @@ Next, we need to process the data to prepare it for model fitting. As mentioned 
 ### Data matrix
 The data matrix is extracted using the `exprs` function from the `Biobase` package, which extracts the gene expression data. Notice that this was not an object we saw from the `eset_data` object. 
 This demonstrates how working with genetics data in R is not always straightforward. The data is often stored in complex objects, and it is necessary to understand the structure of the object to extract the data needed for analysis.
-```r
+```{r}
 X <- t(exprs(eset_data))
 ```
 We also transpose the matrix to get it into the traditional regression format (rows x columns), given by 
-```r
+```{r}
 dim(X)
 ```
 where we see that we have 60 samples (rows) and 22575 genes (columns). We can see a snippet of the data
-```r
+```{r}
 X[1:5,1:5]
 ```
 which shows the first 5 samples and the first 5 genes. We need to check for missingness, as penalised regression models do not work with missing data (which we would need to remove).
 There are many ways to check for missingness - one great way is to use the `aggr` from the `VIM` package (see Q2). In our case, we can simply check the total amount of missing values
-```r
+```{r}
 sum(is.na(X))
 ```
 In this case, we are fortunate that the data has no missingness and is already well-processed, but sometimes this is not the case (as can be seen in Q2).
@@ -124,14 +124,85 @@ Our data matrix is now ready.
 ### Response
 We already extracted the response above, but we now assign it to a new variable name and encode it to 0 and 1. We can do this simply by making the output numerical (1,2,3), where 2 identifies control patients.
 Therefore, we can assign 2 as FALSE
-```r
+```{r}
 y <- (as.numeric(pData(eset)$disease.state) != 2)
 ```
 The encoding of TRUE/FALSE is equivalent to a 0,1 encoding. Our response is now ready.
 
 ### Grouping structure index
-This is probably the most challenging part of the processing pipeline, as we need to group the genes into their pathways.
+This is probably the most challenging part of the processing pipeline, as we need to group the genes into their pathways. 
 
+To group genes into their pathways, we use the major collections of gene sets of the Human Molecular Signatures Database (MSigDB) [L4]. 
+There are nine such collections, C1-C8 and H, each containing pathways that perform different tasks. For this dataset, we will use the C3 pathway, which are the regulatory target gene sets (gene sets representing potential targets of regulation by transcription factors or microRNAs).
+
+We can download the gene set (the .gmt file) from the MSigDB [L4] website. The gene sets are updated regularly and an account is needed to download them. 
+For those reasons, the C3 .gmt file has been provided in the GitHub repository (`data/gene-sets`). 
+
+We load the file using
+```{r, results='hide'}
+geneset_data <- GSA.read.gmt("data/gene-sets/c3.all.v2023.2.Hs.symbols.gmt")
+```
+This contains three elements: 
+1. `genesets`: this is a list, where each list entry is the the names of the genes for a particular gene set.
+2. `geneset.names`: the names of the gene sets.
+3. `geneset.description`: links which give descriptions of each gene set.
+
+We need to match the genes in X to the genes in the gene sets in the `geneset_data` object. 
+We now match the genes to the gene sets. To do this, we use the `match` R function. 
+```{r}
+gene_identifiers <- Table(raw_data)[,2] # these are the gene names in X
+num_geneset <- length(geneset_data$genesets) # the number of gene sets
+
+index <- rep(0,length(gene_identifiers)) # these will be the group indexes, which will be found by matching the genes to the gene sets
+
+for(i in 1:num_geneset){ # loop match over each gene set
+  matched_index <- match(geneset_data$genesets[[i]],gene_identifiers)
+  index[matched_index] <- i
+}
+```
+We check which genes have been matched to a gene set (note that not every gene will have a match, in which case we drop those genes)
+```{r}
+ind_include <- which(index != 0)
+length(ind_include)
+```
+We can see that about 12000 genes have been matched, just over half of the genes present in X. We now reconstruct X with only the matched genes
+
+```{r}
+matched_gene_names <- gene_identifiers[ind_include]
+X <- X[,ind_include]
+dim(X)
+```
+We now need to reperform the matching with the remaining genes
+```{r}
+group_index <- rep(0,ncol(X))
+for(i in 1:num_geneset){ # iterate over each gene set
+  for(j in 1:length(geneset_data$genesets[[i]])){ # iterate over each gene in the gene set
+    change.ind <- match(geneset_data$genesets[[i]][j],matched_gene_names) # matching gene to gene set
+    if(!is.na(change.ind)){ # if the gene is in the gene set
+      if(group_index[change.ind] == 0){ # if the gene has not been assigned a group index
+        group_index[change.ind] <- i
+      }
+    }
+  }
+}
+
+head(group_index)
+```
+We are almost done. The final step is to reset the group indexing so that it runs from 1,2,...
+Many of the models we will use do not work unless this is done. We reset the indexing by looping over each gene set and assigning the group index to the genes in the gene set.
+```{r}
+grp_ids = data.frame(col_id = 1:length(unique(group_index)),grps=unique(group_index))
+ordered_group_indx = rep(0,length(group_index))
+for (i in 1:length(group_index)){
+  ordered_group_indx[i] = which(grp_ids$grps == group_index[i])
+}
+```
+
+### Save dataset
+We can now save the cleaned dataset (we will save it as an RDS file)
+```{r}
+saveRDS(list(X,y,group_index),"colitis_data_c3.RDS")
+```
 
 **Q3: run the full pipeline with the dataset `GDS807`**
 
@@ -139,6 +210,7 @@ This is probably the most challenging part of the processing pipeline, as we nee
 - [L1] https://www.ncbi.nlm.nih.gov/gds
 - [L2] https://cola-gds.github.io/
 - [L3] https://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=GDS1615
+- [L4] https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp
 
 ## References
 - [R1] N. E. U. Hermansen. Prognostic Studies in Multiple Myeloma with Emphasis on Genetic
