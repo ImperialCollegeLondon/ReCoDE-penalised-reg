@@ -1,0 +1,76 @@
+---
+title: "Chapter 1: Downloading genetics data"
+output:
+  html_document:
+    keep_md: true
+    toc: true
+    toc_float: true
+    toc_collapse: true
+
+---
+
+This chapter will give an overview of genetics data. We will cover:
+1. Genetics background (optional). In this section a brief background of genetics will be given, to give context to the problem, but it is optional, as relevant domain knowledge will also be inserted throughout the other chapters.
+2. Downloading genetics data. In this section, code is presented to readily download genetics data.
+3. Processing the data. Step-by-step instructions are given on how the data processing pipeline works. 
+
+The aim of this chapter is to provide useful code that can be easily adapted and expanded upon to download different genetics datasets.
+
+Some questions to consider when reading this chapter are:
+
+- Why do we need the various processing steps? Are these steps needed each time or can we sometimes skip some of them?
+- Are there are steps that have been omitted that may be important?
+- Is this pipeline applicable beyond genetics data?
+
+## Genetics background (optional)
+There are 46 chromosomes within the nucleus of a human cell. Two copies of the 22 autosome chromosomes and the sex chromosomes XX and XY make up these 46. Each chromosome is made up of a deoxyribonucleic acid (DNA) molecule. The DNA is a double-stranded molecule which encodes genetic information about an individual (\cite{geneticsnotes}). Figure \ref{fig:genes_diagram} shows a visualisation of these concepts.
+
+![An illustration of a chromosome, the DNA, and genes [R1].](images/genes_diagram.png)
+	
+DNA is made up of bonds between base pairs of nucleotides. There are four types of nucleotides found in DNA: adenine (A), cytosine (C), guanine (G), and thymine (T); shown in the figure below.
+
+\textit{Genes} are regions of the DNA which act as instructions to make proteins. They also provide individuals with inherited characteristics. The section with letters in the figure above shows an example gene.
+
+![An illustration of nucleotides [R2].](images/nucleotides.jpg)
+	
+The bonds between the nucleotides hold the DNA strand together in the form of a double helix. \textit{Single-nucleotide polymorphisms} (SNPs) are common variations of the DNA observed in individuals; shown in the figure below. They are variations of single nucleotides of the genome. 
+	
+A \textit{locus} is a fixed position on a chromosome which contains a gene [R3]. A DNA sequence at a locus can have different forms (called alleles) from one copy of the chromosome to another. An individual's genotype is their combination of alleles at a specific locus. 
+	
+![An illustration of a SNP [R4].](images/snp.png)
+
+Let us consider the SNP shown in figure above with two alleles: A and G. Hence, an individual has four possible genotypes that can be observed: AA, AG, GA, and GG. The genotypes AA and GG are referred to as the \textit{homozygous genotypes}. AG and GA are the \textit{heterozygous genotypes}. The allele which is observed the least in a sample population is termed the \textit{minor allele}. 
+	
+The \textit{minor allele frequency} (MAF) is the rate at which the minor allele occurs in a sample population.
+	
+The \textit{Hardy-Weinberg equilibrium} states that allele and genotype rates are expected to remain the same in a population.
+	
+Finally, a \textit{phenotype} is an observable trait in an individual. Examples include eye colour, hair colour, or a trait of a disease. There is strong interest in discovering the relationships between genotype and phenotype, as this can enable the attempted prediction of the risk of a disease occurring in an individual, based on their genetic makeup. SNPs are often tested for associations with phenotypes. The outcome variables we use are (case-control) phenotype data.
+	
+## Downloading genetics data
+First, we load a few useful packages:
+```r
+library(GEOquery)
+library(GSA)
+```
+To download the datasets, we can use the helpful `getGEO` function from the `GEOquery` package loaded above. This function is able to download a GEO object (which will contain the data needed for fitting models) from the National Center for Biotechnology Information (NCBI) database [L1]. 
+The NCBI database contains many different biomedical and genomic datasets. We are interested in the Gene Expression Omnibus (GEO) datasets, which can be found through the search function, although websites exist which have indexed the datasets [L2]. 
+In our example, we want to investigate whether we can predict cases of inflammatory bowel diseases (Ulcerative colitis and Crohn's). Searching the NCBI website for 'Ulcerative colitis and Crohn's disease comparison' yields the dataset [L3]. Using the dataset ID, we can download the dataset using
+```r
+gds1615 <- getGEO('GDS1615')
+```
+
+## Processing pipeline
+Next, we need to process the data to prepare it for model fitting. We are interested in obtaining three objects:
+
+1. The input data matrix, X. This will contain the gene expression data.
+2. The response vector, y. This will contain the disease state of a patient (1 if the patient has an inflammatory bowel disease and 0 otherwise).
+3. The grouping structure indexes. This will contain group indexes for which groups (pathways) the genes belong to. This is only needed for the models which use grouping information (glasso and SGL).
+
+## Links
+- [L1] https://www.ncbi.nlm.nih.gov/gds
+- [L2] https://cola-gds.github.io/
+- [L3] https://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=GDS1615
+
+## References
+- [R1]
