@@ -62,11 +62,11 @@ library(Biobase)
 To download the datasets, we can use the helpful `getGEO` function from the `GEOquery` package loaded above. This function is able to download a GEO object (which will contain the data needed for fitting models) from the National Center for Biotechnology Information (NCBI) database [L1]. 
 The NCBI database contains many different biomedical and genomic datasets. We are interested in the Gene Expression Omnibus (GEO) datasets, which can be found through the search function, although websites exist which have indexed the datasets [L2]. 
 In our example, we want to investigate whether we can predict cases of inflammatory bowel diseases (Ulcerative colitis and Crohn's). Searching the NCBI website for 'Ulcerative colitis and Crohn's disease comparison' yields the dataset [L3]. Using the dataset ID, we can download the dataset using
-```r
+```{r}
 raw_data <- getGEO('GDS1615')
 ```
 This is an object of class `GDS`, so it does not behave as a normal R object would. To make it easier to manipulate the object, we convert it to a `eSet` class (ExpressionSet, which is a popular Biobase object)
-```r
+```{r}
 eset_data <- GDS2eSet(raw_data, do.log2 = TRUE)
 ```
 We also used this opportunity to log transform the data. A Log2 transformation is commonly applied to gene expression data to stabilize the variance across the range of expression values and to make the data more normally distributed, which is a useful property in statistical modelling.
