@@ -111,7 +111,7 @@ where we see that we have 60 samples (rows) and 22575 genes (columns). We can se
 X[1:5,1:5]
 ```
 which shows the first 5 samples and the first 5 genes. We need to check for missingness, as penalised regression models do not work with missing data (which we would need to remove).
-There are many ways to check for missingness - one great way is to use the `aggr` from the `VIM` package (see Q2). In our case, we can simply check the total amount of missing values
+There are many ways to check for missingness - one great way is to use the `aggr` function from the `VIM` package (see Q2). In our case, we can simply check the total amount of missing values
 ```{r}
 sum(is.na(X))
 ```
@@ -122,10 +122,16 @@ Our data matrix is now ready.
 **Q2: create the data matrix for the dataset `GDS807`**
 
 ### Response
-We already extracted the response above, but we now assign it to a new variable name and encode it to 0 and 1. We can do this simply by making the output numerical (1,2,3), where 2 identifies control patients.
+We already extracted the response above, but we now assign it to a new variable name and encode it to 0 and 1. We can do this simply by making the output numerical (1,2,3).
+To see how R is assigning each label to a number, we can check
+```{r}
+levels(pData(eset_data)$disease.state)
+unique(as.numeric(pData(eset_data)$disease.state))
+```
+We can see that 2 identifies control patients.
 Therefore, we can assign 2 as FALSE
 ```{r}
-y <- (as.numeric(pData(eset)$disease.state) != 2)
+y <- (as.numeric(pData(eset_data)$disease.state) != 2)
 ```
 The encoding of TRUE/FALSE is equivalent to a 0,1 encoding. Our response is now ready.
 
@@ -201,7 +207,7 @@ for (i in 1:length(group_index)){
 ### Save dataset
 We can now save the cleaned dataset (we will save it as an RDS file)
 ```{r}
-saveRDS(list(X,y,group_index),"colitis_data_c3.RDS")
+saveRDS(list(X,y,ordered_group_indx),"colitis-data-c3.RDS")
 ```
 
 **Q3: run the full pipeline with the dataset `GDS807`**
