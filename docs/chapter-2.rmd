@@ -1,0 +1,100 @@
+---
+title: 'Chapter 1: Downloading genetics data'
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    keep_md: true
+    toc: true
+    toc_float: true
+    toc_collapse: true
+---
+
+## Motivation (optional)
+The genetics background for understanding the motivation was described in Chapter 1. 
+Here, we give a detailed description of the problem we are trying to solve, from a genetics point of view. The mathematical formulation of the problem is described in the next section.
+
+A key problem in genetics is to identify which genotypes (genetic markers) are associated with phenotypes (trait) - see Section 1 for a detailed genetics background.
+Early approaches of identifying these genotypes used univariate analysis, where each gene was independently tested for association with the outcome.
+In these analyses, simple statistical tests, such as the t-test, are used to calculate p-values on the significance of single gene expressions on a phenotype [R1]. 
+However, genes sit within groups (called pathways), and so these approaches do not fully utilise the biological information available. 
+We might expects genes in the same pathways to behave in similar ways and interact with each other.
+
+Pathway analysis, also known as gene set analysis, attempts to make use of the information about the biological set-up of the genes being investigated, with the hope of this leading to more accurate models. 
+As such, the aim of pathway analysis is to identify pathways, which are groups of genes, that have an association with a particular phenotype. 
+Popular examples of pathway analysis methods include over-representation analysis (ORA), functional class scoring (FCS) methods, and pathway topology analysis (PTA) [R1].
+
+The problem of selecting relevant pathways can be seen as both an individual variable and group selection problem - we want to find both the relevant pathways and the genes within those pathways.
+Methods for variable selection are countless, ranging from simple linear regression to more sophisticated approaches, such as neural networks [R2, R3]. 
+
+In pathway analysis, we use datasets with more genes ($p$) than individuals ($n$) to which they belong. As such, pathway analysis falls under the $p>>n$ umbrella of problems (this is the field of high-dimensional statistics), commonly known as \textit{short, fat data problems}. 
+Additionally, as only a small fraction of genes and pathways tend to be disease-associated, we seek methods which encourage sparse solutions [R4, R5].
+
+A particular family of methods which are often used to solve $p>>n$ problems and generate sparse solutions are penalised regression methods, which we discuss next.
+
+## Penalised regression
+\textit{Note on notation}: $\beta_i \in \mathbb{R}$ will refer to the coefficient for a variable $i$, whilst $\beta^{(g)} \in \mathbb{R}^{m_g}$ refers to the vector of coefficients for the variables in group $g$ (of which there are $m_g$).
+
+In the traditional linear regression setting, we have response data $y$, of dimension $n$, and input data $X$, of dimension $n\times p$, and a corresponding model given by $y = X\beta + \epsilon$, where $\epsilon \sim N(0,\sigma^2), \sigma^2>0$. 
+With the rise of big data, we are increasingly tackling datasets where $p>>n$ (which falls under the umbrella of high-dimensional statistics), including in cyber security, biomedical imaging, and as mentioned above, pathway analysis. 
+In such cases, there are insufficient degrees of freedom to estimate the full model. Indeed, the solution to linear regression (ordinary least squares) can not be computed for high-dimensional datasets, as the inverse of $X$ does not exist (which is needed for the solution).
+
+As a solution for dealing with such a situation, [R6] introduced the \textit{least absolute shrinkage and selection operator} (\textit{lasso}). The lasso performs variable selection by regularisation; that is, it minimises a loss function subject to some constraints. 
+Formally, the lasso finds $\beta$ estimates by solving
+
+\begin{equation} 
+	\hat{\beta}_\text{lasso} = \min_\beta \left\{ \frac{1}{2}\left\|y- X \beta\right\| _2^2 + \lambda \left\| \beta \right\|_1 \right\},
+\end{equation}
+where $\left\| \cdot \right\|_1$  is the $L^1$ norm and $\left\| \cdot \right\|_2$  is the $L^2$ norm. The approach generates sparse solutions by shrinking some coefficients and setting others to 0 exactly, retaining the desirable properties of subset selection and ridge regression [R6] - this is shown in the figure below.
+
+![Solutions of the lasso (left) and ridge regression (right) for $p=2$. The blue regions are the constraint regions and the red eclipses are the contour lines of the least squared errors function. The solutions are given by where the contours hit the constraint region. This figure is from [R7].](images/ridgevslasso.png)
+
+As a consequence of the diamond shape of the lasso constraint region, if the solution occurs at the corner, the corresponding parameter $\beta_j$ is set exactly to 0 [R7], which is not possible with the ridge constraint region. For $p>2$, the diamond is a rhomboid, which has many edges, and we retain this desirable property of the lasso.
+
+We mentioned in the motivation that genes come in groups and that we would like to utilize this grouping information. 
+To that end, [R8] adapted the lasso approach to the problem of selecting grouped variables by introducing the \textit{group lasso} (\textit{gLasso}). 
+Let $X^{(1)}, \dots, X^{(G)}$ be non-overlapping groups of variables (all groups are assumed to be non-overlapping), then the solution is given by
+
+\begin{equation}
+	\hat{\beta}_\text{gLasso} = \min_{\beta} \left\{ \frac{1}{2}\left\|y-\sum_{g=1}^{G} X^{(g)} \beta^{(g)} \right\| _2^2 + \lambda  \sum_{g=1}^{G} \sqrt{p_g} \left\| \beta^{(g)} \right\|_2 \right\},
+\end{equation}
+where $\sqrt{p_g}$ is the number of variables in group $g$. If the size of each group is 1, then we recover the lasso solution. 
+The group lasso creates sparsity at a group level by shrinking whole groups exactly to 0, so that each variable within a group is shrunk to 0 exactly. 
+ 
+The group lasso has found widespread use in finding significant genetic variants [R10, R11]. Although, using this approach for pathway analysis would require the assumption that all genes in a significant pathway are also significant, not allowing for additional sparsity within a group [R12]. 
+So, one may wish to have sparsity at both the group (pathway) and variable (gene) level. 
+
+## References
+- [R1] F. Maleki, K. Ovens, D. J. Hogan, and A. J. Kusalik. Gene Set Analysis: Challenges, Opportunities,
+and Future Research. Frontiers in Genetics, 11(June):1-16, 2020. ISSN 16648021. doi: 10.3389/
+fgene.2020.00654.
+- [R2] G. Heinze, C. Wallisch, and D. Dunkler. Variable selection - A review and recommendations
+for the practicing statistician. Biometrical Journal, 60(3):431-449, 2018. ISSN 15214036. doi:
+10.1002/bimj.201700067.
+- [R3] M. Ye and Y. Sun. Variable selection via penalized neural network: A drop-out-one loss approach.
+35th International Conference on Machine Learning, ICML 2018, 13:8922-8931, 2018.
+- [R4] C. Yang, X. Wan, Q. Yang, H. Xue, and W. Yu. Identifying main effects and epistatic interactions
+from large-scale SNP data via adaptive group Lasso. BMC Bioinformatics, 11(SUPPLL.1):1-11,
+2010. ISSN 14712105. doi: 10.1186/1471-2105-11-S1-S18.
+- [R5] Y. Guo, C. Wu, M. Guo, Q. Zou, X. Liu, and A. Keinan. Combining sparse group lasso and linear
+mixed model improves power to detect genetic variants underlying quantitative traits. Frontiers
+in Genetics, 10(APR):1-11, 2019. ISSN 16648021. doi: 10.3389/fgene.2019.00271.
+- [R6] R. Tibshirani. Regression Shrinkage and Selection via the Lasso. Journal of the Royal Statistical
+Society., 58(1):267-288, 1996.
+- [R7] T. Hastie, R. Tibshirani, and J. Friedman. The Elements of Statistical Learning Data Mining,
+Inference, and Prediction, Second Edition, volume 103. Springer New York, 2nd ed. 20 edition,
+2009. ISBN 9780387848587.
+- [R8] M. Yuan and Y. Lin. Model selection and estimation in regression with grouped variables. Journal of
+the Royal Statistical Society. Series B: Statistical Methodology, 68(1):49-67, 2006. ISSN 13697412.
+doi: 10.1111/j.1467-9868.2005.00532.x.
+- [R9] N. Simon, J. Friedman, T. Hastie, and R. Tibshirani. A sparse-group lasso. Journal of Compu-
+tational and Graphical Statistics, 22(2):231{245, 2013. ISSN 10618600. doi: 10.1080/10618600.
+2012.681250.
+- [R10] J. Li, Z.Wang, R. Li, and R.Wu. Bayesian group lasso for nonparametric varying-coefficient models
+with application to functional genome-wide association studies. Annals of Applied Statistics, 9
+(2):640-664, 2015. ISSN 19417330. doi: 10.1214/15-AOAS808.
+- [R11] M. Lim and T. Hastie. Learning interactions via hierarchical group-lasso regularization. J Comput
+Graph Stat., 24(3):627-654, 2015. doi: 10.1080/10618600.2014.938812.
+- [R12] Y. Guo, C. Wu, M. Guo, Q. Zou, X. Liu, and A. Keinan. Combining sparse group lasso and linear
+mixed model improves power to detect genetic variants underlying quantitative traits. Frontiers
+in Genetics, 10(APR):1-11, 2019. ISSN 16648021. doi: 10.3389/fgene.2019.00271.
