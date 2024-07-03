@@ -35,17 +35,17 @@ DNA is made up of bonds between base pairs of nucleotides. There are four types 
 
 ![An illustration of nucleotides [R2].](assets/images/nucleotides.jpg)
 
-\textit{Genes} are regions of the DNA which act as instructions to make proteins. They also provide individuals with inherited characteristics. The section with letters in the figure above shows an example gene.
+*Genes* are regions of the DNA which act as instructions to make proteins. They also provide individuals with inherited characteristics. The section with letters in the figure above shows an example gene.
 	
-The bonds between the nucleotides hold the DNA strand together in the form of a double helix. \textit{Single-nucleotide polymorphisms} (SNPs) are common variations of the DNA observed in individuals; shown in the figure below. They are variations of single nucleotides of the genome. 
+The bonds between the nucleotides hold the DNA strand together in the form of a double helix. *Single-nucleotide polymorphisms* (SNPs) are common variations of the DNA observed in individuals; shown in the figure below. They are variations of single nucleotides of the genome. 
 
-A \textit{locus} is a fixed position on a chromosome which contains a gene [R3]. A DNA sequence at a locus can have different forms (called alleles) from one copy of the chromosome to another. An individual's genotype is their combination of alleles at a specific locus. 
+A *locus* is a fixed position on a chromosome which contains a gene [R3]. A DNA sequence at a locus can have different forms (called alleles) from one copy of the chromosome to another. An individual's genotype is their combination of alleles at a specific locus. 
 	
 ![An illustration of a SNP [R4].](assets/images/snp.png)
 
-Let us consider the SNP shown in figure above with two alleles: A and G. Hence, an individual has four possible genotypes that can be observed: AA, AG, GA, and GG. The genotypes AA and GG are referred to as the \textit{homozygous genotypes}. AG and GA are the \textit{heterozygous genotypes}. The allele which is observed the least in a sample population is termed the \textit{minor allele}. 
+Let us consider the SNP shown in figure above with two alleles: A and G. Hence, an individual has four possible genotypes that can be observed: AA, AG, GA, and GG. The genotypes AA and GG are referred to as the *homozygous genotypes*. AG and GA are the *heterozygous genotypes*. The allele which is observed the least in a sample population is termed the *minor allele*. 
 
-Finally, a \textit{phenotype} is an observable trait in an individual. Examples include eye colour, hair colour, or a trait of a disease. There is strong interest in discovering the relationships between genotype and phenotype, as this can enable the attempted prediction of the risk of a disease occurring in an individual, based on their genetic makeup. SNPs are often tested for associations with phenotypes. The outcome variables we use are (case-control) phenotype data.
+Finally, a *phenotype* is an observable trait in an individual. Examples include eye colour, hair colour, or a trait of a disease. There is strong interest in discovering the relationships between genotype and phenotype, as this can enable the attempted prediction of the risk of a disease occurring in an individual, based on their genetic makeup. SNPs are often tested for associations with phenotypes. The outcome variables we use are (case-control) phenotype data.
 	
 The genetics data described above is called genotype data, which (as mentioned) is often used in modelling to uncover associations (and indeed could be used in our proposed pipeline). However, the specific disease problem we are tackling uses gene expression data. Gene expression is the process by which information from a gene is used to synthesise a functional gene product, such as proteins or non-coding RNA, which in turn influences a phenotype.
 Put more simply, gene expression is the basic process through which a genotype results in a phenotype, or observable trait. By measursing the strength of the gene expressions in an individual (which is what our data matrix X will contain) we can then discover associations between the genes (providing the information for the gene expression) and a disease outcome (our response y).
