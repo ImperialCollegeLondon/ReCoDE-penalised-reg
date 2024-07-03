@@ -26,7 +26,7 @@ Some questions to consider when reading this chapter are:
 - Are there are steps that have been omitted that may be important?
 - Is this pipeline applicable beyond genetics data?
 
-## Genetics background (optional)
+# Genetics background (optional)
 There are 46 chromosomes within the nucleus of a human cell. Two copies of the 22 autosome chromosomes and the sex chromosomes XX and XY make up these 46. Each chromosome is made up of a deoxyribonucleic acid (DNA) molecule. The DNA is a double-stranded molecule which encodes genetic information about an individual. The figure below shows a visualisation of these concepts.
 
 ![An illustration of a chromosome, the DNA, and genes [R1].](assets/images/genes_diagram.png)
@@ -52,7 +52,7 @@ Put more simply, gene expression is the basic process through which a genotype r
 
 A final topic of interest is the grouping structure of genes. Genes are often grouped into pathways, which are sets of genes that work together to perform a specific function. This grouping information can be useful in modelling, as it can help to identify which pathways are associated with a disease and can allow a model to utilise grouping information about the genes. Some of the models we will use will use this grouping information.
 
-## Downloading genetics data
+# Downloading genetics data
 First, we load a few useful packages:
 ```{r}
 library(GEOquery)
@@ -90,13 +90,13 @@ Not every genetics dataset downloaded from NCBI will have the same objects.
 
 **Q1: download the genetics dataset with the ID `GDS807`. Do you get the same objects?** 
 
-## Processing pipeline
+# Processing pipeline
 Next, we need to process the data to prepare it for model fitting. As mentioned in the introduction to this section, we want to extract three objects:
 1. The input data matrix, X.
 2. The response vector, y.
 3. The grouping structure indexes.
 
-### Data matrix
+## Data matrix
 The data matrix is extracted using the `exprs` function from the `Biobase` package, which extracts the gene expression data. Notice that this was not an object we saw from the `eset_data` object. 
 This demonstrates how working with genetics data in R is not always straightforward. The data is often stored in complex objects, and it is necessary to understand the structure of the object to extract the data needed for analysis.
 ```{r}
@@ -111,7 +111,9 @@ where we see that we have 60 samples (rows) and 22575 genes (columns). We can se
 X[1:5,1:5]
 ```
 which shows the first 5 samples and the first 5 genes. We need to check for missingness, as penalised regression models do not work with missing data (which we would need to remove).
-There are many ways to check for missingness - one great way is to use the `aggr` function from the `VIM` package (see Q2). In our case, we can simply check the total amount of missing values
+There are many ways to check for missingness - one great way is to use the `aggr` function from the `VIM` package (there are no missing values in this case, but see Q2 for an example use). 
+
+In our case, we can simply check the total amount of missing values
 ```{r}
 sum(is.na(X))
 ```
@@ -119,9 +121,9 @@ In this case, we are fortunate that the data has no missingness and is already w
 
 Our data matrix is now ready.
 
-**Q2: create the data matrix for the dataset `GDS807`**
+**Q2: create the data matrix for the dataset `GDS807`.**
 
-### Response
+## Disease state vector
 We already extracted the response above, but we now assign it to a new variable name and encode it to 0 and 1. We can do this simply by making the output numerical (1,2,3).
 To see how R is assigning each label to a number, we can check
 ```{r}
@@ -135,7 +137,7 @@ y <- (as.numeric(pData(eset_data)$disease.state) != 2)
 ```
 The encoding of TRUE/FALSE is equivalent to a 0,1 encoding. Our response is now ready.
 
-### Grouping structure index
+## Grouping structure index
 This is probably the most challenging part of the processing pipeline, as we need to group the genes into their pathways. 
 
 To group genes into their pathways, we use the major collections of gene sets of the Human Molecular Signatures Database (MSigDB) [L4]. 
@@ -194,6 +196,8 @@ for(i in 1:num_geneset){ # iterate over each gene set
 
 head(group_index)
 ```
+This double loop is not computationally the most ideal solution and might be slow for large examples. To speed this up, parallelisation could be used.
+
 We are almost done. The final step is to reset the group indexing so that it runs from 1,2,...
 Many of the models we will use do not work unless this is done. We reset the indexing by looping over each gene set and assigning the group index to the genes in the gene set.
 ```{r}
@@ -204,7 +208,7 @@ for (i in 1:length(group_index)){
 }
 ```
 
-### Save dataset
+## Save dataset
 We can now save the cleaned dataset (we will save it as an RDS file)
 ```{r}
 saveRDS(list(X,y,ordered_group_indx),"colitis-data-c3.RDS")
@@ -212,13 +216,13 @@ saveRDS(list(X,y,ordered_group_indx),"colitis-data-c3.RDS")
 
 **Q3: run the full pipeline with the dataset `GDS807`**
 
-## Links
+# Links
 - [L1] https://www.ncbi.nlm.nih.gov/gds
 - [L2] https://cola-gds.github.io/
 - [L3] https://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=GDS1615
 - [L4] https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp
 
-## References
+# References
 - [R1] N. E. U. Hermansen. Prognostic Studies in Multiple Myeloma with Emphasis on Genetic
 Tumor Lesions. PhD thesis, 2016. doi: 10.13140/RG.2.2.29522.96966.
 - [R2] G. Betts, P. DeSaix, E. Johnson, J. E. Johnson, O. Korol, D. H. Kruse, B. Poe, J. A.
