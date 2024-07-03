@@ -11,7 +11,7 @@ We can check the objects in the `eset_data` object
 ```{r}
 head(eset_data$sample)
 table(eset_data$disease.state)
-head(eset_data$sample)
+head(eset_data$description)
 ```
 We have the same objects for the colitis data, but this time we have 32 controls and 28 patients suffering from the disease. 
 
