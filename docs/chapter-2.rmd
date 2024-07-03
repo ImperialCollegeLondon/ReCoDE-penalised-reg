@@ -14,7 +14,7 @@ output:
 The genetics background for understanding the motivation was described in Chapter 1. 
 Here, we give a detailed description of the problem we are trying to solve, from a genetics point of view. The mathematical formulation of the problem is described in the next section.
 
-A key problem in genetics is to identify which genotypes (genetic markers) are associated with phenotypes (trait) - see Section 1 for a detailed genetics background.
+A key problem in genetics is to identify which genotypes (genetic markers) are associated with phenotypes (trait).
 Early approaches of identifying these genotypes used univariate analysis, where each gene was independently tested for association with the outcome.
 In these analyses, simple statistical tests, such as the t-test, are used to calculate p-values on the significance of single gene expressions on a phenotype [R1]. 
 However, genes sit within groups (called pathways), and so these approaches do not fully utilise the biological information available. 
