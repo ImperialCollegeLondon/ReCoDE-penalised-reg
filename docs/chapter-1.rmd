@@ -82,7 +82,7 @@ table(eset_data$disease.state)
 As the name suggests, this contains the disease state of the patients. You can see that there are three levels, with 42 control patients and 85 patients suffering from inflammatory bowel disease.
 This is our response variable, y, which we will need to encode later to 0 and 1.
 ```{r}
-head(eset_data$sample)
+head(eset_data$description)
 ```
 This contains the description of the samples, which we will also not be using.
 
