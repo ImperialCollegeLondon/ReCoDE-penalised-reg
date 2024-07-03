@@ -47,7 +47,7 @@ Formally, the lasso finds $\beta$ estimates by solving
 \end{equation}
 where $\left\| \cdot \right\|_1$  is the $L^1$ norm and $\left\| \cdot \right\|_2$  is the $L^2$ norm. The approach generates sparse solutions by shrinking some coefficients and setting others to 0 exactly, retaining the desirable properties of subset selection and ridge regression [R6] - this is shown in the figure below.
 
-![Solutions of the lasso (left) and ridge regression (right) for $p=2$. The blue regions are the constraint regions and the red eclipses are the contour lines of the least squared errors function. The solutions are given by where the contours hit the constraint region. This figure is from [R7].](images/ridgevslasso.png)
+![Solutions of the lasso (left) and ridge regression (right) for $p=2$. The blue regions are the constraint regions and the red eclipses are the contour lines of the least squared errors function. The solutions are given by where the contours hit the constraint region. This figure is from [R7].](assets/images/ridgevslasso.png)
 
 As a consequence of the diamond shape of the lasso constraint region, if the solution occurs at the corner, the corresponding parameter $\beta_j$ is set exactly to 0 [R7], which is not possible with the ridge constraint region. For $p>2$, the diamond is a rhomboid, which has many edges, and we retain this desirable property of the lasso.
 

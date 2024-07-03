@@ -29,11 +29,11 @@ Some questions to consider when reading this chapter are:
 ## Genetics background (optional)
 There are 46 chromosomes within the nucleus of a human cell. Two copies of the 22 autosome chromosomes and the sex chromosomes XX and XY make up these 46. Each chromosome is made up of a deoxyribonucleic acid (DNA) molecule. The DNA is a double-stranded molecule which encodes genetic information about an individual. The figure below shows a visualisation of these concepts.
 
-![An illustration of a chromosome, the DNA, and genes [R1].](images/genes_diagram.png)
+![An illustration of a chromosome, the DNA, and genes [R1].](assets/images/genes_diagram.png)
 	
 DNA is made up of bonds between base pairs of nucleotides. There are four types of nucleotides found in DNA: adenine (A), cytosine (C), guanine (G), and thymine (T); shown in the figure below.
 
-![An illustration of nucleotides [R2].](images/nucleotides.jpg)
+![An illustration of nucleotides [R2].](assets/images/nucleotides.jpg)
 
 \textit{Genes} are regions of the DNA which act as instructions to make proteins. They also provide individuals with inherited characteristics. The section with letters in the figure above shows an example gene.
 	
@@ -41,7 +41,7 @@ The bonds between the nucleotides hold the DNA strand together in the form of a 
 
 A \textit{locus} is a fixed position on a chromosome which contains a gene [R3]. A DNA sequence at a locus can have different forms (called alleles) from one copy of the chromosome to another. An individual's genotype is their combination of alleles at a specific locus. 
 	
-![An illustration of a SNP [R4].](images/snp.png)
+![An illustration of a SNP [R4].](assets/images/snp.png)
 
 Let us consider the SNP shown in figure above with two alleles: A and G. Hence, an individual has four possible genotypes that can be observed: AA, AG, GA, and GG. The genotypes AA and GG are referred to as the \textit{homozygous genotypes}. AG and GA are the \textit{heterozygous genotypes}. The allele which is observed the least in a sample population is termed the \textit{minor allele}. 
 
