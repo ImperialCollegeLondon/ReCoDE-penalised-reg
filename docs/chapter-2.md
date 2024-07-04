@@ -14,7 +14,7 @@ R code is provided for implementing the methods to simple examples, which will b
 
 The aim of this chapter is to provide the genetics and mathematical background that allows a student to understand the problem we are trying to solve and the methods we will use to solve it. This will help the student to adapt the methods accordingly to our problem and think about how they can be applied to other problems.
 
-## Motivation (optional)
+# Motivation (optional)
 The genetics background for understanding the motivation was described in Chapter 1. 
 Here, we give a detailed description of the problem we are trying to solve, from a genetics point of view. The mathematical formulation of the problem is described in the next section.
 
@@ -36,17 +36,16 @@ Additionally, as only a small fraction of genes and pathways tend to be disease-
 
 A particular family of methods which are often used to solve $p>>n$ problems and generate sparse solutions are penalised regression methods, which we discuss next.
 
-## Penalised regression
+# Penalised regression
 *Note on notation*: $\beta_i \in \mathbb{R}$ will refer to the coefficient for a variable $i$, whilst $\beta^{(g)} \in \mathbb{R}^{m_g}$ refers to the vector of coefficients for the variables in group $g$ (of which there are $m_g$).
 
 In the traditional linear regression setting, we have response data $y$, of dimension $n$, and input data $X$, of dimension $n\times p$, and a corresponding model given by $y = X\beta + \epsilon$, where $\epsilon \sim N(0,\sigma^2), \sigma^2>0$. 
 With the rise of big data, we are increasingly tackling datasets where $p>>n$ (which falls under the umbrella of high-dimensional statistics), including in cyber security, biomedical imaging, and as mentioned above, pathway analysis. 
 In such cases, there are insufficient degrees of freedom to estimate the full model. Indeed, the solution to linear regression (ordinary least squares) can not be computed for high-dimensional datasets, as the inverse of $X$ does not exist (which is needed for the solution).
 
-### Lasso
+## Lasso
 As a solution for dealing with such a situation, [R6] introduced the *least absolute shrinkage and selection operator* (lasso). The lasso performs variable selection by regularisation; that is, it minimises a loss function subject to some constraints. 
 Formally, the lasso finds $\beta$ estimates by solving
-
 $$
 \hat{\beta}_\text{lasso} = \min_\beta \left\{ \frac{1}{2}\left\|y- X \beta\right\| _2^2 + \lambda \left\| \beta \right\|_1 \right\},
 $$
@@ -91,7 +90,7 @@ We can also visualise some of the active coefficients using
 plot(fit)
 ```
 and we can observe that the coefficients become larger in absolute value as the value of $\lambda$ become smaller.
-So we now have 20 lasso models and we want to pick a single one to use for prediction. As mentioned, we can use cross-validation:
+So we now have 20 lasso models and we want to pick a single one to use for prediction. The most popular option is to use cross-validation:
 ```{r}
 fit.cv <- cv.glmnet(x = X, y = y, family = "gaussian", nlambda = 20, lambda.min.ratio = 0.1)
 print(fit.cv)
@@ -102,7 +101,8 @@ Using the `1se` model, we can compare the obtained coefficients to the true beta
 ```{r}
 cbind(beta,fit.cv$glmnet.fit$beta[,19])
 ```
-and we find the lasso does very well. It correctly picks out the first five variables as those with a signal and correctly sets the rest to zero. 
+and we find the lasso does very well. It correctly picks out the first five variables as those with a signal and correctly sets the rest to zero. In Chapter 3, where we apply these methods to real data, we will instead pick $\lambda$ to be the value that minimises the error on a test data set.
+
 We can now use these fitted coefficients to predict y. To fairly test the accuracy of the model, we first need to generate some new data (that uses the same $\beta$ signal)
 ```{r}
 set.seed(3)
@@ -122,8 +122,7 @@ mean((y_new-predict(object = fit.cv, newx = X_new, s = "lambda.1se"))^2)
 
 **Q6: compare the predictions of the 1se model against the min model.**
 
-
-### Group lasso
+## Group lasso
 We mentioned in the motivation that genes come in groups and that we would like to utilize this grouping information. 
 To that end, [R8] adapted the lasso approach to the problem of selecting grouped variables by introducing the *group lasso* (gLasso). 
 Let $X^{(1)}, \dots, X^{(G)}$ be non-overlapping groups of variables (all groups are assumed to be non-overlapping), then the solution is given by
@@ -164,7 +163,7 @@ glasso_model <- grplasso(x = X_gl, y = y, index = groups_gl, lambda = lambdas_gl
 ```
 Comparing the model coefficients to the true ones (for the most saturated model, removing the intercept value):
 ```{r}
-cbind(beta,glasso_model$coefficients[-1,20])
+cbind(beta, glasso_model$coefficients[-1,20])
 ```
 and using it to predict the output (you will notice we have to do a few things manually, such as adding the intercept to `X_new`, this is because many R packages do not have as complete features as `glmnet`)
 ```{r}
@@ -175,9 +174,8 @@ In the next section, we explore a solution to this issue, which is especially li
 
 **Q7: set the group indexing so that the signal variables are all in the same group. What do you observe?**
 
-### Sparse-group lasso
-Using the group lasso for pathway analysis would require the assumption that all genes in a significant pathway are also significant, not allowing for additional sparsity within a group [R11]. 
-So, one may wish to have sparsity at both the group (pathway) and variable (gene) level. 
+## Sparse-group lasso
+Using the group lasso for pathway analysis would require the assumption that all genes in a significant pathway are also significant, not allowing for additional sparsity within a group [R11]. So, one may wish to have sparsity at both the group (pathway) and variable (gene) level. 
 
 To fulfil this wish, [R9] introduced the *sparse-group lasso* (SGL), which combines traditional lasso with the group lasso to create models with bi-level sparsity. 
 The solution to SGL is given by
@@ -185,9 +183,40 @@ $$
 \hat{\beta}_\text{SGL}= \min_{\beta} \left\{ \frac{1}{2n}\left\|y-\sum_{g=1}^{G} X^{(g)} \beta^{(g)} \right\| _2^2 + (1-\alpha)\lambda  \sum_{g=1}^{G} \sqrt{p_g} \left\| \beta^{(g)} \right\|_2 + \alpha \lambda \left\| \beta \right\|_1\right\},
 $$
 where $\alpha\in [0,1]$ controls the level of sparsity between group and variable sparsity. If $\alpha = 1$, we recover the lasso, and $\alpha=0$ recovers the group lasso. 
-The figure shows how SGL is a convex combination of these two approaches.
 
+The figure shows how SGL is a convex combination of these two approaches.
 ![Contour lines for the group lasso (dotted), lasso (dashed), and sparse-group lasso (solid) for $p=2$ [R13].](assets/images/all_lasso1.png)
+
+We can implement SGL using the `SGL` R package. We now need to specify the additional $\alpha$ parameter. This is normally set subjectively, because if we were to include this in a cross-validation tuning regime, we would need to do a grid search with $\lambda$, which is expensive. [R11] suggest the value of $\alpha = 0.95$, giving mostly the lasso penalty with only a bit of the group lasso. This is a sensible suggestion, as it allows the model to use the strengths of the lasso whilst avoiding the limitation of the group lasso (in having to select all variables as significant)
+```{r}
+library(SGL)
+sgl_model <- SGL(list(x=X,y=y), groups, type = "linear", nlam = 20, min.frac = 0.1, alpha = 0.95)
+```
+As before, we can look at the coefficients and prediction
+```{r}
+cbind(beta, sgl_model$beta[,20])
+```
+We observe inflated coefficients in comparison to the true values. 
+
+**Q8 (optional): can you figure out why we get inflated values?**
+
+Now prediction:
+```{r}
+mean((y_new-predictSGL(x = sgl_model, newX = X_new, lam = 20))^2)
+```
+We can observe how the prediction changes as a function of $\lambda$:
+```{r}
+preds = rep(0,20)
+for (i in 1:20){
+    preds[i] = mean((y_new-predictSGL(x = sgl_model, newX = X_new, lam = i))^2)
+}
+plot(preds,type="b")
+```
+and we see that the prediction improves as $\lambda$ decrease (that is, as the coefficients become larger).
+
+**Q9: what happens to the predictive score if we allow $\lambda$ to decrease even further?**
+
+**Q10: vary $\alpha$ in the region $[0,1]$. What do you observe?**
 
 In pathway analysis, the proportion of relevant pathways, amongst all pathways, is often very low. Additionally, the proportion of relevant genes within a particular pathway is also low. As such, the SGL model can provide the required level of sparsity at both the pathway and the individual gene level. Indeed, SGL has already been applied to detecting significant genetic variants in [R11]. 
 
