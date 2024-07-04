@@ -144,6 +144,7 @@ groups <- rep(1:5,4)
 The `grplasso` package does not automatically calculate a path of $\lambda$ values, so we compute those first, starting with the first $\lambda$ value using the `lambdamax` function from the package.
 Additionally, the package does not implement an intercept and standardisation in the same way as `glmnet`, so we do this manually. In general, when working with penalised regression models, it is a good idea to fit an intercept and apply standardisation.
 ```{r}
+library(grplasso)
 # standardise data
 X_gl <- t(t(X) - apply(X, 2, mean)) # center data
 X_gl <- t(t(X_gl) / apply(X_gl, 2, sd)) # scale data
@@ -218,11 +219,146 @@ and we see that the prediction improves as $\lambda$ decrease (that is, as the c
 
 **Q10: vary $\alpha$ in the region $[0,1]$. What do you observe?**
 
+**Q11: can you use the `SGL` R package to fit the lasso and group lasso?**
+
 In pathway analysis, the proportion of relevant pathways, amongst all pathways, is often very low. Additionally, the proportion of relevant genes within a particular pathway is also low. As such, the SGL model can provide the required level of sparsity at both the pathway and the individual gene level. Indeed, SGL has already been applied to detecting significant genetic variants in [R11]. 
 
-### SLOPE (optional)
+## SLOPE (optional)
+In genetic data, genes are usually highly correlated with one another. We can visualise this by looking at a correlation plot for the colitis dataset that we prepared in Chapter 1.
+```{r}
+library(reshape2)
+library(ggplot2)
+gene_data <- readRDS("colitis-data.RDS")
 
-## R package links
+corr_mat = cor(gene_data[[1]][,sample(1:ncol(gene_data[[1]]),size = 250)]) # create correlation matrix of subset
+
+melted_corr_mat <- melt(corr_mat) # get into correct format for ggplot
+
+ggplot(data = melted_corr_mat, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1, 1), space = "Lab", 
+                       name="Correlation") +
+  theme_minimal() + 
+  theme(axis.text = element_blank(),  # Remove axis text
+        axis.title = element_blank(), # Remove axis titles
+        panel.grid.major = element_blank(),  # Remove grid lines
+        panel.border = element_blank(),  # Remove border
+        panel.background = element_blank(),  # Remove background
+        axis.ticks = element_blank()) +  # Remove axis ticks
+  coord_fixed()
+```
+We observe many regions of very high corraltion. 
+
+The lasso is able to recover the support of a model if the covariates are not too correlated, but struggles for highly correlated data [R14], making it suboptimal for use with genetics data. Additionally, when discovering associated genes, we want to reduce the number of false discoveries; that is, the false discovery rate (FDR). These two aspects motivated the proposal of the SLOPE method.
+
+The *sorted l-one penalised estimation* (SLOPE) method is an extension of the lasso and was proposed by [R15]. It is considered to be bridge between the lasso and FDR-control in multiple testing. It can also been seen as an adaptive version of the lasso, in which each coefficient is given its own penalty. 
+
+The solution is given by
+$$
+\hat{\beta}_\text{SLOPE} = \min_\beta \left\{ \frac{1}{2}\left\|y- X \beta\right\| _2^2 +\alpha\lambda\sum_{i=1}^{p} \lambda_i \left| \beta \right|_i \right\},
+$$
+where $\lambda_1 \geq \dotsc \geq \lambda_p$ and $\left|\beta \right|_1 \geq \dotsc \geq \left|\beta  \right|_p$. Here, $\lambda_i$ are the adaptive weights and $\alpha$ acts as $\lambda$ did in the lasso. The notation can be somewhat confusing between these methods, especially as different authors use different rules. In SLOPE, the highest variables (in absolute value) are matched to the largest penalty. The idea is that it makes it harder for variables to be non-zero, so that any that do, we can be fairly certain that they actually are signals (which reduces the FDR). When all of the penalty terms are identical, that is $\lambda_1 = \dotsc = \lambda_p$, then SLOPE reduces to the lasso. 
+
+The link to FDR control comes via the Benjamini-Hochberg (BH) procedure (which is a popular FDR controlling procedure), through the choice of the adaptive penalty weights, $\lambda$. The BH critical values are used as the choice of penalisation parameters, so that $\lambda_i = z(1-i \cdot q/2p)$, where $q\in [0,1]$ is the FDR level and $z(\cdot)$ is the quantile function of a standard normal distribution.
+
+We can implement SLOPE in R using the `SLOPE` package
+
+```{r}
+library(SLOPE)
+slope_model = SLOPE(x = X, y = y, family = "gaussian", alpha_min_ratio = 0.1, path_length = 20)
+```
+Here, `alpha_min_ratio` acts as `lambda.min.ratio` in the `glmnet` function. We can first look at the penalty weights
+```{r}
+plot(slope_model$lambda, type = "b")
+```
+As before, we can look at the coefficients
+
+```{r}
+cbind(beta, slope_model$coefficients[-1,,20])
+```
+and use it for prediction
+```{r}
+mean((y_new - predict(object = slope_model, x = X_new)[,20])^2)
+```
+
+The SLOPE method was also extended to the group setting by [R15]. *Group SLOPE* (gSLOPE) is defined by
+$$
+\hat{\beta}_\text{gSLOPE} = \min_{\beta} \left\{ \frac{1}{2}\left\|y- X \beta\right\| _2^2 +\sigma\sum_{g=1}^{G} \lambda_g \sqrt{p_g} \left\| \beta^{(g)} \right\|_2 \right\},
+$$
+where $\sigma$ acts as $\alpha$ in SLOPE, and where $\lambda_1 \geq \dotsc \geq \lambda_G$ and $\left\|\beta^{(1)} \right\|_2 \geq \dotsc \geq \left\|\beta^{(G)} \right\|_2$. The approach applies larger penalties to groups with greater effects. As is the case for SLOPE, if $\lambda_1 = \dotsc = \lambda_G$, then group SLOPE reduces to the group lasso.
+
+To fit gSLOPE, we use the `grpSLOPE` R package (notice that it does not have as many features as the other packages used - for instance, we can only specify one value of $\sigma$, rather than a path as before):
+
+```{r}
+library(grpSLOPE)
+gslope_model = grpSLOPE(X = X, y = y, group = groups, sigma = 0.01, fdr = 0.1)
+```
+We can look at the penalty weights
+```{r}
+plot(gslope_model$lambda, type = "b")
+```
+and the coefficients (where the group penalty limitation is seen again)
+```{r}
+cbind(beta, gslope_model$beta)
+```
+and use it for prediction
+```{r}
+mean((y_new - predict(object = gslope_model, newdata = X_new))^2)
+```
+
+It has been further extended to the sparse-group setting by [R16] to form the *sparse-group SLOPE* (SGS) model. It is defined by
+$$
+	\hat{\boldsymbol\beta}_\text{SGS}(\lambda) = \argmin_{\boldsymbol{b}\in \mathbb{R}^p}\left\{\frac{1}{2n}\left\|\boldsymbol{y}-\mathbf{X}\boldsymbol{b} \right\|_2^2 + \lambda \alpha \sum_{i=1}^{p}v_i |b|_{(i)} + \lambda (1-\alpha)\sum_{g=1}^{m}w_g \sqrt{p_g} \|\boldsymbol{b}^{(g)}\|_2 \right\},
+$$
+where
+- $\lambda$ acts as the traditional lasso penalty term. By varying $\lambda$, we are able to create a pathwise solution, as is done in the lasso approach. 
+- $\alpha \in [0,1]$ is a convex combination of SLOPE and group SLOPE, as in SGL.
+- $w_g$ are the adaptive penalty weights applied to group $g$. They are equivalent to the $\lambda_g$ penalties used in group SLOPE. As is done for group SLOPE, we have $w_1 \geq \dotsc \geq w_m$ and $|\beta^{(1)}| \geq \dotsc \geq | \beta^{(m)}|$.
+- $v_i$ are the adaptive penalty weights applied to the individual variables. They are equivalent to the $\lambda_i$ penalties used in SLOPE. We have that $v_1 \geq \dotsc \geq v_p$ and $|\beta_1| \geq \dotsc \geq |\beta_p|$.
+
+If $v_1 =\dotsc = v_{p}$ and $w_1 = \dotsc = w_G$, then SGS reduces to SGL. SGS is suitable for pathway analysis, as not only does it allow for both genes and pathways to be selected, but it will also control the FDR of the solution at a bi-level.
+
+We can visualise SGS as being a combination of SLOPE and gSLOPE (in the figure below).
+
+![SGS.](assets/images/sgs.png)
+
+SGS can be implemented in R using the `sgs` R package
+```{r}
+library(sgs)
+sgs_model = fit_sgs(X = X, y = y, type = "linear", groups = groups, lambda = 0.15, alpha = 0.95)
+```
+and the coefficients (where the group penalty limitation is no longer present)
+```{r}
+cbind(beta, sgs_model$beta[-1])
+```
+and use it for prediction
+```{r}
+mean((y_new - predict(object = sgs_model, x = X_new))^2)
+```
+
+## Notation (optional)
+Generally, we have three components to a penalised regression model:
+
+1. The penalisation parameter. This is $\lambda$ in the lasso, gLasso, SGL, and SGS, and $\alpha$ in SLOPE, and $\sigma$ in gSLOPE. This determines the degree of sparsity in a model. If the value is high, then few variables will be non-zero. This is only ever a single value defined once for the whole model.
+2. The penalty weights. The lasso does not have penalty weights explicitly defined, because they are hidden as they are just 1 for each coefficient. As SLOPE and gSLOPE are adaptive, each variable/group has a different penalty weight, defined as $\lambda_i$. For SGS, as there is more notation, the penalty weights are set to $v$ for variables and $w$ for groups.
+3. The balance parameter (only for models with more than one penalty function). For SGL and SGS, this is $\alpha$ and it defines the 'balance' between the two types of penalties used (the lasso and group lasso for SGL).
+
+The notation used in this chapter has been done to make it consistent with that used in the R functions.
+
+## Final prediction table
+Throughout this chapter, we applied several different methods for predicting a simple dataset. These are collected in the table below for direct comparison (including the optional models). This is only a very limited case, so the prediction scores are not hugely insightful. Additionally, we did not properly tune each model. A proper comparison of the model's predictive performances will be shown in Chapter 3.
+
+| Model    | Prediction error | 
+|----------|------------------|
+| Lasso    | 3.9              |
+| gLasso   | 4.0              |
+| SGL      | 3.6              |
+| SLOPE    | 3.6              | 
+| gSLOPE   | 2.2              |
+| SGS      | 2.8              |
+
+# R package links
 - [glmnet](https://cran.r-project.org/web/packages/glmnet/index.html)
 - [grplasso](https://cran.r-project.org/web/packages/grplasso/index.html)
 - [gglasso](https://cran.r-project.org/web/packages/gglasso/index.html)
@@ -231,7 +367,7 @@ In pathway analysis, the proportion of relevant pathways, amongst all pathways, 
 - [grpSLOPE](https://cran.r-project.org/web/packages/grpSLOPE/index.html)
 - [sgs](https://cran.r-project.org/web/packages/sgs/index.html)
 
-## References
+# References
 - [R1] F. Maleki, K. Ovens, D. J. Hogan, and A. J. Kusalik. Gene Set Analysis: Challenges, Opportunities,
 and Future Research. Frontiers in Genetics, 11(June):1-16, 2020. ISSN 16648021. doi: 10.3389/
 fgene.2020.00654.
@@ -267,3 +403,13 @@ tational and Graphical Statistics, 22(2):231-245, 2013. ISSN 10618600. doi: 10.1
 2012.681250.
 - [R13] J. Friedman, T. Hastie, and R. Tibshirani. A note on the group lasso and a sparse group lasso.
 pages 1-8, 2010. URL http://arxiv.org/abs/1001.0736.
+- [R14] L. Jacob, G. Obozinski, and J. P. Vert. Group lasso with overlap and graph lasso. ACM International
+Conference Proceeding Series, 382, 2009. doi: 10.1145/1553374.1553431.
+- [R15] M. Bogdan, E. van den Berg, C. Sabatti, W. Su, and E. J. Candes. Slope - adaptive variable
+selection via convex optimization. Annals of Applied Statistics, 9(3):1103-1140, 2015. ISSN
+19417330. doi: 10.1214/15-AOAS842.
+- [R16] D. Brzyski, A. Gossmann, W. Su, and M. Bogdan. Group SLOPE - Adaptive Selection of Groups
+of Predictors. Journal of the American Statistical Association, 114(525):419-433, 2015. ISSN
+1537274X. doi: 10.1080/01621459.2017.1411269.
+- [R17] F. Feser and M. Evangelou. Sparse-group SLOPE: adaptive bi-level selection with
+FDR-control. arXiv preprint arXiv:2305.09467, 2023.
