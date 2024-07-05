@@ -126,7 +126,6 @@ mean((y_new-predict(object = fit.cv, newx = X_new, s = "lambda.1se"))^2)
 We mentioned in the motivation that genes come in groups and that we would like to utilize this grouping information. 
 To that end, [R8] adapted the lasso approach to the problem of selecting grouped variables by introducing the *group lasso* (gLasso). 
 Let $X^{(1)}, \dots, X^{(G)}$ be non-overlapping groups of variables (all groups are assumed to be non-overlapping), then the solution is given by
-
 $$
 \hat{\beta}_\text{gLasso} = \min_{\beta} \left\{ \frac{1}{2}\left\|y-\sum_{g=1}^{G} X^{(g)} \beta^{(g)} \right\|_2^2 + \lambda  \sum_{g=1}^{G} \sqrt{p_g} \left\| \beta^{(g)} \right\|_2 \right\},
 $$
