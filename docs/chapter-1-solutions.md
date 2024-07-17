@@ -1,3 +1,14 @@
+---
+title: 'Chapter 1 solutions'
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    keep_md: true
+    toc: true
+    toc_float: true
+    toc_collapse: true
+---
 **Q1: download the genetics dataset with the ID `GDS807`. Do you get the same objects?** 
 We extract the data as before
 ```{r}
