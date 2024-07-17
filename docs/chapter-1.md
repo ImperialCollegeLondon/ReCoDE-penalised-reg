@@ -211,7 +211,12 @@ for (i in 1:length(group_index)){
 ## Save dataset
 We can now save the cleaned dataset (we will save it as an RDS file)
 ```{r}
-saveRDS(list(X,y,ordered_group_indx),"colitis-data-c3.RDS")
+setwd("data")
+data = list()
+data$X = X
+data$y = y
+data$groups = ordered_group_indx
+saveRDS(data,"colitis-data-c3.RDS")
 ```
 
 **Q3: run the full pipeline with the dataset `GDS807`**
