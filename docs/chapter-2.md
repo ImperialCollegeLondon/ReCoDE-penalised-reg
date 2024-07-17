@@ -141,7 +141,10 @@ For simplicity, in this case we will manually assign the variables into groups o
 groups <- rep(1:5,4)
 ```
 The `grplasso` package does not automatically calculate a path of $\lambda$ values, so we compute those first, starting with the first $\lambda$ value using the `lambdamax` function from the package.
-Additionally, the package does not implement an intercept and standardisation in the same way as `glmnet`, so we do this manually. In general, when working with penalised regression models, it is a good idea to fit an intercept and apply standardisation.
+Additionally, the package does not implement an intercept and standardisation in the same way as `glmnet`, so we do this manually. In general, when working with penalised regression models, it is a good idea to fit an intercept and apply standardisation. In general, when in doubt about whether a package performs standardization properly, a useful check is to compare it to `glmnet`, as this is the gold standard of R packages.
+
+**Q7: compare the `grplasso` package to `glmnet` to see if standardization works properly?**
+
 ```{r}
 library(grplasso)
 # standardise data
@@ -172,7 +175,7 @@ mean((y_new-predict(object = glasso_model, newdata = cbind(1,X_new))[,20])^2)
 This case demonstrates a real limitation of the group lasso. In our manual grouping, we placed a signal variable (one that is not zero) in each group, forcing the group lasso to pick each of those groups as non-zero. The group lasso picks whole groups, so that it is in turn forced to make every variable in those groups non-zero.
 In the next section, we explore a solution to this issue, which is especially limiting in genetics.
 
-**Q7: set the group indexing so that the signal variables are all in the same group. What do you observe?**
+**Q8: set the group indexing so that the signal variables are all in the same group. What do you observe?**
 
 ## Sparse-group lasso
 Using the group lasso for pathway analysis would require the assumption that all genes in a significant pathway are also significant, not allowing for additional sparsity within a group [R11]. So, one may wish to have sparsity at both the group (pathway) and variable (gene) level. 
@@ -180,7 +183,7 @@ Using the group lasso for pathway analysis would require the assumption that all
 To fulfil this wish, [R9] introduced the *sparse-group lasso* (SGL), which combines traditional lasso with the group lasso to create models with bi-level sparsity. 
 The solution to SGL is given by
 $$
-\hat{\beta}_\text{SGL}= \min_{\beta} \left\{ \frac{1}{2n}\left\|y-\sum_{g=1}^{G} X^{(g)} \beta^{(g)} \right\| _2^2 + (1-\alpha)\lambda  \sum_{g=1}^{G} \sqrt{p_g} \left\| \beta^{(g)} \right\|_2 + \alpha \lambda \left\| \beta \right\|_1\right\},
+\hat{\beta}_\text{SGL} = \min_{\beta} \left\{ \frac{1}{2n}\left\|y-\sum_{g=1}^{G} X^{(g)} \beta^{(g)} \right\| _2^2 + (1-\alpha)\lambda  \sum_{g=1}^{G} \sqrt{p_g} \left\| \beta^{(g)} \right\|_2 + \alpha \lambda \left\| \beta \right\|_1\right\},
 $$
 where $\alpha\in [0,1]$ controls the level of sparsity between group and variable sparsity. If $\alpha = 1$, we recover the lasso, and $\alpha=0$ recovers the group lasso. 
 
@@ -198,7 +201,7 @@ cbind(beta, sgl_model$beta[,20])
 ```
 We observe inflated coefficients in comparison to the true values. 
 
-**Q8 (optional): can you figure out why we get inflated values?**
+**Q9 (optional): can you figure out why we get inflated values?**
 
 Now prediction:
 ```{r}
@@ -214,11 +217,11 @@ plot(preds,type="b")
 ```
 and we see that the prediction improves as $\lambda$ decrease (that is, as the coefficients become larger).
 
-**Q9: what happens to the predictive score if we allow $\lambda$ to decrease even further?**
+**Q10: what happens to the predictive score if we allow $\lambda$ to decrease even further?**
 
-**Q10: vary $\alpha$ in the region $[0,1]$. What do you observe?**
+**Q11: vary $\alpha$ in the region $[0,1]$. What do you observe?**
 
-**Q11: can you use the `SGL` R package to fit the lasso and group lasso?**
+**Q12: can you use the `SGL` R package to fit the lasso and group lasso?**
 
 In pathway analysis, the proportion of relevant pathways, amongst all pathways, is often very low. Additionally, the proportion of relevant genes within a particular pathway is also low. As such, the SGL model can provide the required level of sparsity at both the pathway and the individual gene level. Indeed, SGL has already been applied to detecting significant genetic variants in [R11]. 
 

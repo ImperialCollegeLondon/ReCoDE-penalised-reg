@@ -130,7 +130,26 @@ mean((y_new-predict(object = fit.cv, newx = X_new, s = "lambda.min"))^2)
 ```
 In this case, the minimum value actually obtains a lower predictive error, but generally it is still recommended to use the 1se model, to reduce variance (overfitting).
 
-**Q7: set the group indexing so that the signal variables are all in the same group. What do you observe?**
+**Q7: compare the `grplasso` package to `glmnet` to see if standardization works properly?** 
+To do this, we need to reduce the group lasso to the lasso. We can use singleton groups (each variable in its own group), so that the two models are equivalent. We have set the grplasso model up to use the in-built standardisation 
+```{r}
+set.seed(2)
+X <- matrix(rnorm(100 * 20), 100, 20)
+beta <- c(rep(5,5),rep(0,15))
+y <- X%*%beta + rnorm(100)
+
+library(glmnet)
+library(grplasso)
+lasso_model <- glmnet(x = X, y = y, family = "gaussian", nlambda = 20, lambda.min.ratio = 0.1)
+glasso_model <-  grplasso(x = cbind(1,X), y = y, index = c(NA,1:ncol(X)), lambda = lasso_model$lambda, standardize = TRUE, center = TRUE, model = LinReg())
+```
+
+Comparing the final $\lambda$ solution, we see that they are not the same, so the built-in standardisation is not working as intended.
+```{r}
+cbind(lasso_model$beta[,20], glasso_model$coefficients[-1,20])
+```
+
+**Q8: set the group indexing so that the signal variables are all in the same group. What do you observe?**
 Choosing a different grouping, so that the signal variables are in the same group, would lead to the following
 ```{r}
 set.seed(2)
@@ -157,7 +176,7 @@ mean((y_new-predict(object = glasso_model, newdata = cbind(1,X_new))[,20])^2)
 ```
 We now see that we are no longer selecting a lot of zero variables, although surprisingly, this actually makes the prediction error larger. 
 
-**Q8 (optional): can you figure out why we get inflated values?**
+**Q9 (optional): can you figure out why we get inflated values?**
 If we turn standardisation off we get:
 ```{r}
 set.seed(2)
@@ -172,7 +191,7 @@ cbind(beta, sgl_model$beta[,20], sgl_model_2$beta[,20])
 ```
 So it appears that standardisation is not properly implemented in the SGL` package. This highlights the issue of pre-processing when it is done incorrectly.
 
-**Q9: what happens to the predictive score if we allow $\lambda$ to decrease even further?**
+**Q10: what happens to the predictive score if we allow $\lambda$ to decrease even further?**
 We can test the predictive score by decreasing $\lambda$ to quite an extreme minimum and allowing for more $\lambda$ values along the path:
 ```{r}
 set.seed(2)
@@ -195,19 +214,8 @@ plot(preds,type="l")
 ```
 We see that after a certain point, decreasing $\lambda$ further does not provide any additional benefit, only adding more model complexity. Generally, we prefer to use the simplest model that is available, without sacrificing accuracy (a concept known as Occam's Razor).
 
-**Q9: what happens to the predictive score if we allow $\lambda$ to decrease even further?**
-We make the `min.frac` value even smaller
+We can try make the `min.frac` value even smaller
 ```{r}
-set.seed(2)
-X <- matrix(rnorm(100 * 20), 100, 20)
-beta <- c(rep(5,5),rep(0,15))
-y <- X%*%beta + rnorm(100)
-
-set.seed(3)
-X_new <- matrix(rnorm(10 * 20), 10, 20)
-y_new <- X_new%*%beta + rnorm(10)
-library(SGL)
-
 sgl_model <- SGL(list(x=X,y=y), groups, type = "linear", nlam = 200, min.frac = 0.000001, alpha = 0.95)
 mean((y_new-predictSGL(x = sgl_model, newX = X_new, lam = 20))^2)
 
@@ -219,7 +227,7 @@ plot(preds,type="b")
 ```
 The prediction error continues to decrease but we are adding a lot of variance into the model by overfitting. This is ok for a simple example like this, but when there are more predictors it can become problematic, especially if the divide between signal and noise is less apparant.
 
-**Q10: vary $\alpha$ in the region $[0,1]$. What do you observe?**
+**Q11: vary $\alpha$ in the region $[0,1]$. What do you observe?**
 ```{r}
 set.seed(2)
 X <- matrix(rnorm(100 * 20), 100, 20)
@@ -242,7 +250,7 @@ plot(preds$alpha, preds$error, type = "b")
 ```
 We observe the error shrinking as $\alpha$ gets close to 1 (the lasso). This is expected in this scenario, as we did not add a grouping structure to the synthetic data.
 
-**Q11: can you use the `SGL` R package to fit the lasso and group lasso?**
+**Q12: can you use the `SGL` R package to fit the lasso and group lasso?**
 To do this, we just set `alpha` to 0 and 1:
 ```{r}
 set.seed(2)
