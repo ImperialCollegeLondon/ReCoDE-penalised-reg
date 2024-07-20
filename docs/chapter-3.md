@@ -35,7 +35,7 @@ To fit the various models, we need to define the hyperparameters so that we are 
 
 * `path_length`: this defines how many values of $\lambda$ we will fit the model for. We will set this to $100$ to allow for more models to be fit. Ideally we want this to be as large as possible, to give as many possible models, but we must also think about computational cost. 
 * `min_frac`: this sets the value that the final $\lambda$ value is set to, in the sense that $\lambda_{100} = \lambda{1}\times \text{min frac}$. Making this small means that we will allow denser models to be fit. We set this to $0.01$ to allow denser models to be considered.
-* alpha: this is only used for SGL (and SGS in the optional questions): this defines the balance between the variable and group penalties. In genetics, we usually encounter large groups, with many noisy variables. As such, we would prefer to not be limited by the group penalties, in which full groups are picked, but we still want to utilize grouping information. As such, we will use $0.99$.
+* `alpha`: this is only used for SGL (and SGS in the optional questions): this defines the balance between the variable and group penalties. In genetics, we usually encounter large groups, with many noisy variables. As such, we would prefer to not be limited by the group penalties, in which full groups are picked, but we still want to utilize grouping information. As such, we will use $0.99$.
 * `num_iter`: this is the maximum number of iterations the fitting algorithm should fit for, if convergence is not reached. This tends to be set at $5000$, but as the dataset is quite large, we allow the fitting algorithms to run for longer.
 
 We will also use $\ell_2$ standardisation for each model and fit an intercept.
