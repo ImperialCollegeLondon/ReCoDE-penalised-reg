@@ -46,6 +46,3 @@ Optional outcomes:
 
 The chapters are structured to be worked through sequentially. Each chapter contains optional content that adds extra insight into the problem but is not required to solve to core problem. 
 
-## License
-
-This project is licensed under the [BSD-3-Clause license](LICENSE.md)
