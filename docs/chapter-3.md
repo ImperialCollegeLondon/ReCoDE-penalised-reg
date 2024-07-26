@@ -411,6 +411,8 @@ lines(lapply(sgl_model$selected_var,length), type = "l", col = "brown")
 lines(apply(slope_model$nonzeros,3,sum), type = "l", col = "blue")
 lines(lapply(gslope_model$selected_var,length), type = "l", col = "green")
 lines(lapply(sgs_model$selected_var,length), type = "l", col = "purple")
+legend("topright", legend = c("Lasso", "gLasso", "SGL", "SLOPE", "gSLOPE", "SGS"),
+       col = c("black", "red", "brown", "blue", "green", "purple"), lty = 1)
 ```
 
 ### Prediction accuracies
@@ -421,6 +423,8 @@ lines(sgl_df$classification_rate, type = "l", col = "brown")
 lines(slope_df$classification_rate, type = "l", col = "blue")
 lines(gslope_df$classification_rate, type = "l", col = "green")
 lines(sgs_df$classification_rate, type = "l", col = "purple")
+legend("topright", legend = c("Lasso", "gLasso", "SGL", "SLOPE", "gSLOPE", "SGS"),
+       col = c("black", "red", "brown", "blue", "green", "purple"), lty = 1)
 ```
 
 | Model    | Classification accuracy (%) | Genes used |

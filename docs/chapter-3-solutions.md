@@ -391,6 +391,33 @@ length(sgs_model$selected_var[[which.max(sgs_cr)]])
 ```
 In this case, this did not help, as we stay at the same accuracy.
 
+## Comparison
+We end the section by comparing all of the models on the cancer dataset.
+
+### Number of non-zero coefficients
+```{r}
+plot(apply(lasso_model_cancer$beta, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero")
+lines(apply(glasso_model_cancer$coefficients, 2, function(x) length(which(x!=0))), type="l", col = "red")
+lines(lapply(sgl_model_cancer$selected_var,length), type = "l", col = "brown")
+lines(apply(slope_model_cancer$nonzeros,3,sum), type = "l", col = "blue")
+lines(lapply(gslope_model_cancer$selected_var,length), type = "l", col = "green")
+lines(lapply(sgs_model_cancer$selected_var,length), type = "l", col = "purple")
+legend("topright", legend = c("Lasso", "gLasso", "SGL", "SLOPE", "gSLOPE", "SGS"),
+       col = c("black", "red", "brown", "blue", "green", "purple"), lty = 1)
+```
+
+### Prediction accuracies
+```{r}
+plot(lasso_df_cancer$classification_rate, type="l", xlab="Lambda index", ylab = "Number non-zero")
+lines(glasso_df_cancer$classification_rate, type="l", col = "red")
+lines(sgl_df_cancer$classification_rate, type = "l", col = "brown")
+lines(slope_df_cancer$classification_rate, type = "l", col = "blue")
+lines(gslope_df_cancer$classification_rate, type = "l", col = "green")
+lines(sgs_df_cancer$classification_rate, type = "l", col = "purple")
+legend("topright", legend = c("Lasso", "gLasso", "SGL", "SLOPE", "gSLOPE", "SGS"),
+       col = c("black", "red", "brown", "blue", "green", "purple"), lty = 1)
+```
+
 ### Prediction accuracies on cancer dataset
 | Model    | Classification accuracy (%) | Genes used |
 |----------|-----------------------------|------------|
@@ -400,3 +427,4 @@ In this case, this did not help, as we stay at the same accuracy.
 | SLOPE    | 56.7                        | 43         |
 | gSLOPE   | 33.3                        | 417        | 
 | SGS      | 56.7                        | 23         |
+
