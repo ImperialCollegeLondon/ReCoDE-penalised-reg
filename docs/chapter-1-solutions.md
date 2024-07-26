@@ -57,7 +57,7 @@ unique(as.numeric(pData(eset_data)$disease.state))
 ```
 Unlike in the colitis case, here a value of 2 indicates a patient with the disease. So we assign the response as
 ```{r}
-y <- (as.numeric(pData(eset)$disease.state) != 2)
+y <- (as.numeric(pData(eset_data)$disease.state) != 2)
 ```
 The encoding of TRUE/FALSE is equivalent to a 0,1 encoding. We could just as easily have assigned it the other way round - it would not change the modelling process.
 Our response is now ready. 
@@ -105,15 +105,6 @@ for(i in 1:num_geneset){ # iterate over each gene set
 
 head(group_index)
 ```
-We are almost done. The final step is to reset the group indexing so that it runs from 1,2,...
-Many of the models we will use do not work unless this is done. We reset the indexing by looping over each gene set and assigning the group index to the genes in the gene set.
-```{r}
-grp_ids = data.frame(col_id = 1:length(unique(group_index)),grps=unique(group_index))
-ordered_group_indx = rep(0,length(group_index))
-for (i in 1:length(group_index)){
-  ordered_group_indx[i] = which(grp_ids$grps == group_index[i])
-}
-```
 
 ### Removing missingness
 As a final step, we need to remove the missing values. To do this, we need two functions.
@@ -144,8 +135,24 @@ X <- imp.X
 dim(X)
 ```
 
+As we have removed variables (and this should be checked regardless), we need to reset the group indexing so that it runs from 1,2,...
+Many of the models we will use do not work unless this is done. We reset the indexing by looping over each gene set and assigning the group index to the genes in the gene set.
+```{r}
+group_index = group_index[-remove.ind]
+grp_ids = data.frame(col_id = 1:length(unique(group_index)),grps=unique(group_index))
+ordered_group_indx = rep(0,length(group_index))
+for (i in 1:length(group_index)){
+  ordered_group_indx[i] = which(grp_ids$grps == group_index[i])
+}
+```
+
 ### Save dataset
 We can now save the cleaned dataset (we will save it as an RDS file)
 ```{r}
-saveRDS(list(X,y,ordered_group_indx),"cancer-data-c8.RDS")
+setwd("data")
+data = list()
+data$X = X
+data$y = y
+data$groups = ordered_group_indx
+saveRDS(data,"cancer-data-c8.RDS")
 ```
