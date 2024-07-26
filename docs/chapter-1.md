@@ -11,11 +11,13 @@ output:
 ---
 
 This chapter will give an overview of genetics data. We will cover:
+
 1. Genetics background (optional). In this section a brief background of genetics will be given, to give context to the problem, but it is optional, as relevant domain knowledge will also be inserted throughout the other chapters.
 2. Downloading genetics data. In this section, code is presented to readily download genetics data.
 3. Processing the data. Step-by-step instructions are given on how the data processing pipeline works. 
 
-The aim of this chapter is to provide useful code that can be easily adapted and expanded upon to download different genetics datasets. In our model process, we are interested in three objects
+The aim of this chapter is to provide useful code that can be easily adapted and expanded upon to download different genetics datasets. In our model process, we are interested in three objects:
+
 1. The input data matrix, X. This is the data used to form inferences about the genes and will be gene expression data.
 2. The response vector, y. This will contain the disease state of a patient (1 if the patient has the disease and 0 otherwise).
 3. The grouping structure indexes. This will contain group indexes for which groups (pathways) the genes belong to. This is only needed for the models which use grouping information (glasso and SGL).
