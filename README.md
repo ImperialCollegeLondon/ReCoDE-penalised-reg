@@ -10,14 +10,14 @@ The lasso has found particular use in genetics, as it is computationally efficie
 Main outcomes:
 
 - Go through an end-to-end analysis of how we can use penalised regression models to predict cases of colitis using gene expression data.
-- Provide an insight into how genetics data can be downloaded, cleaned, and prepared for use in analysis – this gives a good insight into how general R data manipulation works.
--	Give the student an introduction into predictive modelling by showing how a fitted model can be used to form predictions.
--	Demonstrate how the wide class of penalised regression models work and how they can be implemented in R. This will provide mathematical and statistical background to how these methods work, which will touch upon important regression topics that form the foundation for most models the students will see further down their academic paths.
+- Gain an insight into how genetics data can be downloaded, cleaned, and prepared for use in analysis – this gives a good insight into how general R data manipulation works.
+-	Follow the introduction into predictive modelling by showing how a fitted model can be used to form predictions.
+-	Understand how the wide class of penalised regression models work and how they can be implemented in R. This will include mathematical and statistical background to how these methods work, which will touch upon important regression topics that form the foundation for most models used widely in academia and industry.
 
 
 Optional outcomes:
 
-- The example provided is for predicting colitis data. The questions provided in each section will be guiding the student through another example, where breast cancer is predicted. Therefore, the questions will form a comprehensive additional analysis of breast cancer data.
+- The example provided is for predicting colitis data. The questions provided in each section will provide guidance through another example, where breast cancer is predicted. Therefore, the questions will form a comprehensive additional analysis of breast cancer data.
 - An additional class of models, SLOPE models, are presented in the optional sections of the chapters. SLOPE models are adaptive versions of the models covered in the main outcomes and provide additional insight into the direction of the current research in this area.
   
 
