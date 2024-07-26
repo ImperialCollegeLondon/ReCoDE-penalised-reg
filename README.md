@@ -34,7 +34,7 @@ Optional outcomes:
 - Basic understanding of mathematical concepts that underpin penalised regression: linear algebra, matrices, geometry.
 - Basic statistics knowledge, including linear regression and model fitting.
 - Genetics background is not needed. Basic background information is provided in Chapter 1.
-- Familiarity with R programming language
+- Familiarity with R programming language.
 
 ### System
 
