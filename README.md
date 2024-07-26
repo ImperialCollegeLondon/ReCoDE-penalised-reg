@@ -44,7 +44,7 @@ Optional outcomes:
 
 ## Getting Started
 
-The chapters are structured to be worked through sequentially. Each chapter contains optional content that adds extra insight into the problem but is not required to solve to core problem. 
+The chapters are structured to be worked through sequentially. Each chapter contains optional content that adds extra insight into the problem but is not required to solve to the core problem. 
 
 ## License
 
