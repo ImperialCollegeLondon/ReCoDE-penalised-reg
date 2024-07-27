@@ -16,10 +16,10 @@ This chapter will give an overview of genetics data. We will cover:
 2. Downloading genetics data. In this section, code is presented to readily download genetics data.
 3. Processing the data. Step-by-step instructions are given on how the data processing pipeline works. 
 
-The aim of this chapter is to provide useful code that can be easily adapted and expanded upon to download different genetics datasets. In our model process, we are interested in three objects:
+The aim of this chapter is to provide useful code that can be easily adapted and expanded upon to download different genetics datasets. In our processing section, we are interested in three objects:
 
-1. The input data matrix, X. This is the data used to form inferences about the genes and will be gene expression data.
-2. The response vector, y. This will contain the disease state of a patient (1 if the patient has the disease and 0 otherwise).
+1. The input data matrix, $X$. This is the data used to form inferences about the genes and will be gene expression data.
+2. The response vector, $y$. This will contain the disease state of a patient (1 if the patient has the disease and 0 otherwise, or TRUE/FALSE).
 3. The grouping structure indexes. This will contain group indexes for which groups (pathways) the genes belong to. This is only needed for the models which use grouping information (glasso and SGL).
 
 Some questions to consider when reading this chapter are:
@@ -41,18 +41,18 @@ DNA is made up of bonds between base pairs of nucleotides. There are four types 
 	
 The bonds between the nucleotides hold the DNA strand together in the form of a double helix. *Single-nucleotide polymorphisms* (SNPs) are common variations of the DNA observed in individuals; shown in the figure below. They are variations of single nucleotides of the genome. 
 
-A *locus* is a fixed position on a chromosome which contains a gene [R3]. A DNA sequence at a locus can have different forms (called alleles) from one copy of the chromosome to another. An individual's genotype is their combination of alleles at a specific locus. 
+A *locus* is a fixed position on a chromosome which contains a gene [R1]. A DNA sequence at a locus can have different forms (called alleles) from one copy of the chromosome to another. An individual's genotype is their combination of alleles at a specific locus. 
 	
 ![An illustration of a SNP [R4].](assets/images/snp.png)
 
 Let us consider the SNP shown in figure above with two alleles: A and G. Hence, an individual has four possible genotypes that can be observed: AA, AG, GA, and GG. The genotypes AA and GG are referred to as the *homozygous genotypes*. AG and GA are the *heterozygous genotypes*. The allele which is observed the least in a sample population is termed the *minor allele*. 
 
-Finally, a *phenotype* is an observable trait in an individual. Examples include eye colour, hair colour, or a trait of a disease. There is strong interest in discovering the relationships between genotype and phenotype, as this can enable the attempted prediction of the risk of a disease occurring in an individual, based on their genetic makeup. SNPs are often tested for associations with phenotypes. The outcome variables we use are (case-control) phenotype data.
+Finally, a *phenotype* is an observable trait in an individual. Examples include eye colour, hair colour, or a trait of a disease. There is strong interest in discovering the relationships between genotype and phenotype, as this can enable the attempted prediction of the risk of a disease occurring in an individual, based on their genetic makeup. SNPs are often tested for associations with phenotypes. The response variables we use are (case-control) phenotype data.
 	
 The genetics data described above is called genotype data, which (as mentioned) is often used in modelling to uncover associations (and indeed could be used in our proposed pipeline). However, the specific disease problem we are tackling uses gene expression data. Gene expression is the process by which information from a gene is used to synthesise a functional gene product, such as proteins or non-coding RNA, which in turn influences a phenotype.
-Put more simply, gene expression is the basic process through which a genotype results in a phenotype, or observable trait. By measursing the strength of the gene expressions in an individual (which is what our data matrix X will contain) we can then discover associations between the genes (providing the information for the gene expression) and a disease outcome (our response y).
+Put more simply, gene expression is the basic process through which a genotype results in a phenotype or observable trait. By measursing the strength of the gene expressions in an individual (which is what our data matrix $X$ will contain) we can then discover associations between the genes and a disease outcome (our response $y$).
 
-A final topic of interest is the grouping structure of genes. Genes are often grouped into pathways, which are sets of genes that work together to perform a specific function. This grouping information can be useful in modelling, as it can help to identify which pathways are associated with a disease and can allow a model to utilise grouping information about the genes. Some of the models we will use will use this grouping information.
+A final topic of interest is the grouping structure of genes. Genes are often grouped into pathways, which are sets of genes that work together to perform a specific function. This grouping information can be useful in modelling, as it can help to identify which pathways are associated with a disease and can allow a model to utilise grouping information about the genes. Some of the models we apply later on will use this grouping information.
 
 # Downloading genetics data
 First, we load a few useful packages:
@@ -81,8 +81,7 @@ This contains the sample ID for the patients, which we will not be using.
 ```{r}
 table(eset_data$disease.state)
 ```
-As the name suggests, this contains the disease state of the patients. You can see that there are three levels, with 42 control patients and 85 patients suffering from inflammatory bowel disease.
-This is our response variable, y, which we will need to encode later to 0 and 1.
+As the name suggests, this contains the disease state of the patients. You can see that there are three levels, with 42 control patients and 85 patients suffering from an inflammatory bowel disease. This is our response variable, $y$, which we will need to encode later to 0 and 1.
 ```{r}
 head(eset_data$description)
 ```
@@ -94,12 +93,14 @@ Not every genetics dataset downloaded from NCBI will have the same objects.
 
 # Processing pipeline
 Next, we need to process the data to prepare it for model fitting. As mentioned in the introduction to this section, we want to extract three objects:
-1. The input data matrix, X.
-2. The response vector, y.
+
+1. The input data matrix, $X$.
+2. The response vector, $y$.
 3. The grouping structure indexes.
 
 ## Data matrix
 The data matrix is extracted using the `exprs` function from the `Biobase` package, which extracts the gene expression data. Notice that this was not an object we saw from the `eset_data` object. 
+
 This demonstrates how working with genetics data in R is not always straightforward. The data is often stored in complex objects, and it is necessary to understand the structure of the object to extract the data needed for analysis.
 ```{r}
 X <- t(exprs(eset_data))
@@ -112,28 +113,26 @@ where we see that we have 60 samples (rows) and 22575 genes (columns). We can se
 ```{r}
 X[1:5,1:5]
 ```
-which shows the first 5 samples and the first 5 genes. We need to check for missingness, as penalised regression models do not work with missing data (which we would need to remove).
+which shows the first 5 samples and the first 5 genes. We need to check for missingness, as penalised regression models do not work with missing data (which we would need to remove or impute).
 There are many ways to check for missingness - one great way is to use the `aggr` function from the `VIM` package (there are no missing values in this case, but see Q2 for an example use). 
 
 In our case, we can simply check the total amount of missing values
 ```{r}
 sum(is.na(X))
 ```
-In this case, we are fortunate that the data has no missingness and is already well-processed, but sometimes this is not the case (as can be seen in Q2).
+We are fortunate that the data has no missingness and is already well-processed, but sometimes this is not the case.
 
 Our data matrix is now ready.
 
 **Q2: create the data matrix for the dataset `GDS807`.**
 
 ## Disease state vector
-We already extracted the response above, but we now assign it to a new variable name and encode it to 0 and 1. We can do this simply by making the output numerical (1,2,3).
-To see how R is assigning each label to a number, we can check
+We already extracted the response above, but we now assign it to a new variable name and encode it to TRUE/FALSE. We can check the different levels of the response
 ```{r}
 levels(pData(eset_data)$disease.state)
 unique(as.numeric(pData(eset_data)$disease.state))
 ```
-We can see that 2 identifies control patients.
-Therefore, we can assign 2 as FALSE
+We can see that 2 identifies control patients. Therefore, we can assign 2 as FALSE
 ```{r}
 y <- (as.numeric(pData(eset_data)$disease.state) != 2)
 ```
@@ -145,19 +144,20 @@ This is probably the most challenging part of the processing pipeline, as we nee
 To group genes into their pathways, we use the major collections of gene sets of the Human Molecular Signatures Database (MSigDB) [L4]. 
 There are nine such collections, C1-C8 and H, each containing pathways that perform different tasks. For this dataset, we will use the C3 pathway, which are the regulatory target gene sets (gene sets representing potential targets of regulation by transcription factors or microRNAs).
 
-We can download the gene set (the .gmt file) from the MSigDB [L4] website. The gene sets are updated regularly and an account is needed to download them. 
+We can download the gene set (the .gmt file) from the MSigDB website [L4]. The gene sets are updated regularly and an account is needed to download them. 
 For those reasons, the C3 .gmt file has been provided in the GitHub repository (`data/gene-sets`). 
 
 We load the file using
 ```{r, results='hide'}
 geneset_data <- GSA.read.gmt("data/gene-sets/c3.all.v2023.2.Hs.symbols.gmt")
 ```
-This contains three elements: 
+This contains three elements:
+
 1. `genesets`: this is a list, where each list entry is the the names of the genes for a particular gene set.
 2. `geneset.names`: the names of the gene sets.
 3. `geneset.description`: links which give descriptions of each gene set.
 
-We need to match the genes in X to the genes in the gene sets in the `geneset_data` object. 
+We need to match the genes in $X$ to the genes in the gene sets in the `geneset_data` object. 
 We now match the genes to the gene sets. To do this, we use the `match` R function. 
 ```{r}
 gene_identifiers <- Table(raw_data)[,2] # these are the gene names in X
@@ -175,7 +175,7 @@ We check which genes have been matched to a gene set (note that not every gene w
 ind_include <- which(index != 0)
 length(ind_include)
 ```
-We can see that about 12000 genes have been matched, just over half of the genes present in X. We now reconstruct X with only the matched genes
+We can see that about 12000 genes have been matched, just over half of the genes present in $X$. We now reconstruct $X$ with only the matched genes
 
 ```{r}
 matched_gene_names <- gene_identifiers[ind_include]
@@ -221,7 +221,7 @@ data$groups = ordered_group_indx
 saveRDS(data,"colitis-data-c3.RDS")
 ```
 
-**Q3: run the full pipeline with the dataset `GDS807`**
+**Q3: run the full pipeline with the dataset `GDS807`.**
 
 # Links
 - [L1] https://www.ncbi.nlm.nih.gov/gds
@@ -230,10 +230,5 @@ saveRDS(data,"colitis-data-c3.RDS")
 - [L4] https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp
 
 # References
-- [R1] N. E. U. Hermansen. Prognostic Studies in Multiple Myeloma with Emphasis on Genetic
-Tumor Lesions. PhD thesis, 2016. doi: 10.13140/RG.2.2.29522.96966.
-- [R2] G. Betts, P. DeSaix, E. Johnson, J. E. Johnson, O. Korol, D. H. Kruse, B. Poe, J. A.
-Wise, and K. A. Young. The Nucleus and DNA Replication, 2012. URL http:
-//philschatz.com/anatomy-book/contents/m46073.html.
-- [R3] Sano Genetics. SNP of the week, 2019. URL https://medium.com/@sanogenetics/
+- [R1] Sano Genetics. SNP of the week, 2019. URL https://medium.com/@sanogenetics/
 snp-of-the-week-58e23927c188.
