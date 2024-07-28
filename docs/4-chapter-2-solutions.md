@@ -9,7 +9,7 @@ output:
     toc_float: true
     toc_collapse: true
 ---
-**Q1: run the same model again but without standardising. What do you observe?** 
+## Q1: run the same model again but without standardising. What do you observe?
 As before, we run
 ```{r}
 set.seed(2)
@@ -27,7 +27,7 @@ cbind(fit$beta[,20],fit_ns$beta[,20])
 ```
 The solutions are similar but not quite the same. A lot of things happen in the background when standardization occurs. Without getting into too much detail, standardization scales $\lambda$ accordingly, to ensure we get similar solutions, but this scaling is only approximate, hence the difference. Generally, it is recommended to use standardization.
 
-**Q2: what happens if we do not specify how many lambdas we want?**
+## Q2: what happens if we do not specify how many lambdas we want?
 If we remove the lambda options:
 ```{r}
 set.seed(2)
@@ -84,7 +84,7 @@ fit.cv.best <- cv.glmnet(x = X, y = y, family = "gaussian", nlambda = 20, lambda
 cbind(beta, fit.cv.ridge$glmnet.fit$beta[,20], fit.cv.best$glmnet.fit$beta[,20])
 ```
 
-**Q4 (optional): look at the glmnet documentation - which parameters might be interesting to vary?**
+## Q4 (optional): look at the glmnet documentation - which parameters might be interesting to vary?
 There are many options to alter in the `glmnet` function. Generally, it is best to leave them as default, as they have been set to sensible values by the authors, unless you have a reason to change them. Some ones of interest are:
 
 -`alpha`: this is discussed in Q3.
@@ -92,7 +92,7 @@ There are many options to alter in the `glmnet` function. Generally, it is best 
 -`intercept`: a TRUE/FALSE indicator as to whether an intercept is fit. Again, it is good practice to leave this on, unless you have a strong reason to believe that your regression lines goes through the origin (i.e., that your response is centered at 0, which is rare). You also should not center your response yourself, as again various changes occur in the backend if this is set to on. The two options describe show that you do not need to do these pre-processing steps yourself, `glmnet` will do it for you.
 -`penalty.factor`: this allows you to use adaptive penalty weights, which leads to the *adaptive lasso* (as in SLOPE, see the optional section, although note that this function can not be used for SLOPE, due to the sorting algorithm). 
 
-**Q5: instead of using the predict function, manually code a prediction.**
+## Q5: instead of using the predict function, manually code a prediction.
 A linear model is defined as
 $$ 
 y = X\beta + \epsilon
@@ -112,7 +112,7 @@ preds_2 = X%*%fit$beta
 cbind(preds_1[1:5], preds_2[1:5])
 ```
 
-**Q6: compare the predictions of the 1se model against the min model.**
+## Q6: compare the predictions of the 1se model against the min model.
 ```{r}
 set.seed(2)
 X <- matrix(rnorm(100 * 20), 100, 20)
@@ -130,7 +130,7 @@ mean((y_new-predict(object = fit.cv, newx = X_new, s = "lambda.min"))^2)
 ```
 In this case, the minimum value actually obtains a lower predictive error, but generally it is still recommended to use the 1se model, to reduce variance (overfitting).
 
-**Q7: compare the `grplasso` package to `glmnet` to see if standardization works properly?** 
+## Q7: compare the `grplasso` package to `glmnet` to see if standardization works properly?
 To do this, we need to reduce the group lasso to the lasso. We can use singleton groups (each variable in its own group), so that the two models are equivalent. We have set the grplasso model up to use the in-built standardisation 
 ```{r}
 set.seed(2)
@@ -149,7 +149,7 @@ Comparing the final $\lambda$ solution, we see that they are not the same, so th
 cbind(lasso_model$beta[,20], glasso_model$coefficients[-1,20])
 ```
 
-**Q8: set the group indexing so that the signal variables are all in the same group. What do you observe?**
+## Q8: set the group indexing so that the signal variables are all in the same group. What do you observe?
 Choosing a different grouping, so that the signal variables are in the same group, would lead to the following
 ```{r}
 set.seed(2)
@@ -176,7 +176,7 @@ mean((y_new-predict(object = glasso_model, newdata = cbind(1,X_new))[,20])^2)
 ```
 We now see that we are no longer selecting a lot of zero variables, although surprisingly, this actually makes the prediction error larger. 
 
-**Q9 (optional): can you figure out why we get inflated values?**
+## Q9 (optional): can you figure out why we get inflated values?
 If we turn standardisation off we get:
 ```{r}
 set.seed(2)
@@ -191,7 +191,7 @@ cbind(beta, sgl_model$beta[,20], sgl_model_2$beta[,20])
 ```
 So it appears that standardisation is not properly implemented in the SGL` package. This highlights the issue of pre-processing when it is done incorrectly.
 
-**Q10: what happens to the predictive score if we allow $\lambda$ to decrease even further?**
+## Q10: what happens to the predictive score if we allow $\lambda$ to decrease even further?
 We can test the predictive score by decreasing $\lambda$ to quite an extreme minimum and allowing for more $\lambda$ values along the path:
 ```{r}
 set.seed(2)
@@ -227,7 +227,7 @@ plot(preds,type="b")
 ```
 The prediction error continues to decrease but we are adding a lot of variance into the model by overfitting. This is ok for a simple example like this, but when there are more predictors it can become problematic, especially if the divide between signal and noise is less apparant.
 
-**Q11: vary $\alpha$ in the region $[0,1]$. What do you observe?**
+## Q11: vary $\alpha$ in the region $[0,1]$. What do you observe?
 ```{r}
 set.seed(2)
 X <- matrix(rnorm(100 * 20), 100, 20)
@@ -250,7 +250,7 @@ plot(preds$alpha, preds$error, type = "b")
 ```
 We observe the error shrinking as $\alpha$ gets close to 1 (the lasso). This is expected in this scenario, as we did not add a grouping structure to the synthetic data.
 
-**Q12: can you use the `SGL` R package to fit the lasso and group lasso?**
+## Q12: can you use the `SGL` R package to fit the lasso and group lasso?
 To do this, we just set `alpha` to 0 and 1:
 ```{r}
 set.seed(2)

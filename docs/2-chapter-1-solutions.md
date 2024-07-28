@@ -47,7 +47,7 @@ On the right plot, we can see which combinations of missingness occur most often
 
 We will remove the missing values at the end of this section.
 
-**Q3: run the full pipeline with the dataset `GDS807`.**
+## Q3: run the full pipeline with the dataset `GDS807`.
 
 We now complete the data pipeline with this dataset.
 
