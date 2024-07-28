@@ -9,7 +9,7 @@ output:
     toc_float: true
     toc_collapse: true
 ---
-# Q1: download the genetics dataset with the ID `GDS807`. Do you get the same objects?
+## Q1: download the genetics dataset with the ID `GDS807`. Do you get the same objects?
 
 This dataset contains genetic information from patients suffering from breast cancer. We extract the data as before
 ```{r}
@@ -26,7 +26,7 @@ head(eset_data$description)
 ```
 We have the same objects for the colitis data, but this time we have 32 controls and 28 patients suffering from the disease. 
 
-**Q2: create the data matrix for the dataset `GDS807`.**
+## Q2: create the data matrix for the dataset `GDS807`.
 
 As before, we run
 ```{r}
