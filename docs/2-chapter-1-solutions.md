@@ -9,14 +9,14 @@ output:
     toc_float: true
     toc_collapse: true
 ---
-**Q1: download the genetics dataset with the ID `GDS807`. Do you get the same objects?** 
-We extract the data as before
+# Q1: download the genetics dataset with the ID `GDS807`. Do you get the same objects?
+
+This dataset contains genetic information from patients suffering from breast cancer. We extract the data as before
 ```{r}
 raw_data <- getGEO('GDS807')
 eset_data <- GDS2eSet(raw_data, do.log2 = TRUE)
 ```
-We notice that an error regarding NaNs is obtained. This is due to the log transformation working on negative data, but is not a concern as we will filter this out anyway. 
-As an aside, look at Question 1b below for the first steps to running the analysis without log transformtions.
+We notice that an error regarding NaNs is printed. This is due to the log transformation working on negative data, but is not a concern as we will filter this out anyway. 
 
 We can check the objects in the `eset_data` object
 ```{r}
@@ -26,7 +26,8 @@ head(eset_data$description)
 ```
 We have the same objects for the colitis data, but this time we have 32 controls and 28 patients suffering from the disease. 
 
-**Q2: create the data matrix for the dataset `GDS807`**
+**Q2: create the data matrix for the dataset `GDS807`.**
+
 As before, we run
 ```{r}
 X <- t(exprs(eset_data))
@@ -46,7 +47,8 @@ On the right plot, we can see which combinations of missingness occur most often
 
 We will remove the missing values at the end of this section.
 
-**Q3: run the full pipeline with the dataset `GDS807`**
+**Q3: run the full pipeline with the dataset `GDS807`.**
+
 We now complete the data pipeline with this dataset.
 
 ### Response
