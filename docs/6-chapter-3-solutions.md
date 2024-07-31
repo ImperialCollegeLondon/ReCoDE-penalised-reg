@@ -265,7 +265,7 @@ slope_df_cancer = data.frame(
 max(slope_df_cancer$classification_rate)
 sum(slope_model_cancer$nonzeros[,,which.max(slope_df_cancer$classification_rate)])
 ```
-SLOPE is found to have a peak classification rate of $56.7%$ using $43$ genes. So, the same accuracy as the lasso, but actually using genes. However, the genes were not found to be informative.
+SLOPE is found to have a peak classification rate of $56.7\%$ using $43$ genes. So, the same accuracy as the lasso, but actually using genes. However, the genes were not found to be informative.
 
 ## Q7 (optional): apply gSLOPE to the cancer data.
 ```{r}
