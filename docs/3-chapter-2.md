@@ -280,6 +280,7 @@ and use the package for prediction
 mean((y_new - predict(object = slope_model, x = X_new)[,20])^2)
 ```
 
+### Group SLOPE
 The SLOPE method was also extended to the group setting by [R15]. *Group SLOPE* (gSLOPE) is defined by
 $$
 \hat{\beta}_\text{gSLOPE} = \min_{\beta} \left\{ \frac{1}{2}\left\|y- X \beta\right\| _2^2 +\sigma\sum_{g=1}^{G} \lambda_g \sqrt{p_g} \left\| \beta^{(g)} \right\|_2 \right\},
@@ -305,6 +306,7 @@ and use it for prediction
 mean((y_new - predict(object = gslope_model, newdata = X_new))^2)
 ```
 
+### Sparse-group SLOPE
 It has been further extended to the sparse-group setting by [R16] to form the *sparse-group SLOPE* (SGS) model. It is defined by
 $$
 	\hat{\boldsymbol\beta}_\text{SGS} = \min_{\beta} \left\{\frac{1}{2}\left\|y- X \beta \right\|_2^2 + \lambda \alpha \sum_{i=1}^{p}v_i |b|_{(i)} + \lambda (1-\alpha)\sum_{g=1}^{G}w_g \sqrt{p_g} \|\boldsymbol{b}^{(g)}\|_2 \right\},
