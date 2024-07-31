@@ -186,12 +186,12 @@ where $\alpha\in [0,1]$ controls the level of sparsity between group and variabl
 
 ![Contour lines for the group lasso (dotted), lasso (dashed), and sparse-group lasso (solid) for $p=2$ [R13].](assets/images/all_lasso1.png)
 
-We can implement SGL using the `SGL` R package. We now need to specify the additional $\alpha$ parameter. This is normally set subjectively, because if we were to include this in a cross-validation tuning regime, we would need to do a grid search with $\lambda$, which is expensive. [R11] suggest the value of $\alpha = 0.95$, giving mostly the lasso penalty with only a bit of the group lasso. This is a sensible suggestion, as it allows the model to use the strengths of the lasso whilst avoiding the limitation of the group lasso (in having to select all variables as significant)
+We can implement SGL using the `SGL` R package. We now need to specify the additional $\alpha$ parameter. This is normally set subjectively, because if we were to include this in a cross-validation tuning regime, we would need to do a grid search with $\lambda$, which is expensive. [R11] suggest the value of $\alpha = 0.95$, giving mostly the lasso penalty with only a bit of the group lasso. This is a sensible suggestion, as it allows the model to use the strengths of the lasso whilst avoiding the limitation of the group lasso (having to select all variables as significant).
 ```{r}
 library(SGL)
 sgl_model <- SGL(list(x=X,y=y), groups, type = "linear", nlam = 20, min.frac = 0.1, alpha = 0.95)
 ```
-As before, we can look at the coefficients and prediction
+As before, we can look at the coefficients
 ```{r}
 cbind(beta, sgl_model$beta[,20])
 ```
@@ -211,7 +211,7 @@ for (i in 1:20){
 }
 plot(preds,type="b")
 ```
-and we see that the prediction improves as $\lambda$ decrease (that is, as the coefficients become larger).
+and we see that the prediction improves as $\lambda$ decrease (that is, as the coefficients become larger and more variables enter the model).
 
 **Q10: what happens to the predictive score if we allow $\lambda$ to decrease even further?**
 
@@ -254,9 +254,9 @@ The *sorted l-one penalised estimation* (SLOPE) method is an extension of the la
 
 The solution is given by
 $$
-\hat{\beta}_\text{SLOPE} = \min_\beta \left\{ \frac{1}{2}\left\|y- X \beta\right\| _2^2 +\alpha\lambda\sum_{i=1}^{p} \lambda_i \left| \beta \right|_i \right\},
+\hat{\beta}_\text{SLOPE} = \min_\beta \left\{ \frac{1}{2}\left\|y- X \beta\right\| _2^2 +\alpha\sum_{i=1}^{p} \lambda_i \left| \beta \right|_i \right\},
 $$
-where $\lambda_1 \geq \dotsc \geq \lambda_p$ and $\left|\beta \right|_1 \geq \dotsc \geq \left|\beta  \right|_p$. Here, $\lambda_i$ are the adaptive weights and $\alpha$ acts as $\lambda$ did in the lasso. The notation can be somewhat confusing between these methods, especially as different authors use different rules. In SLOPE, the highest variables (in absolute value) are matched to the largest penalty. The idea is that it makes it harder for variables to be non-zero, so that any that do, we can be fairly certain that they actually are signals (which reduces the FDR). When all of the penalty terms are identical, that is $\lambda_1 = \dotsc = \lambda_p$, then SLOPE reduces to the lasso. 
+where $\lambda_1 \geq \dotsc \geq \lambda_p$ and $\left|\beta \right|_1 \geq \dotsc \geq \left|\beta  \right|_p$. Here, $\lambda_i$ are the adaptive weights and $\alpha$ acts as $\lambda$ did in the lasso. The notation can be somewhat confusing between these methods, especially as different authors use different notations (I have tried to clarify this in the notation section below). In SLOPE, the highest variables (in absolute value) are matched to the largest penalty. The idea is that it makes it harder for variables to be non-zero, so that any that do, we can be fairly certain that they actually are signals (which reduces the FDR). When all of the penalty terms are identical, that is $\lambda_1 = \dotsc = \lambda_p$, then SLOPE reduces to the lasso. 
 
 The link to FDR control comes via the Benjamini-Hochberg (BH) procedure (which is a popular FDR controlling procedure), through the choice of the adaptive penalty weights, $\lambda$. The BH critical values are used as the choice of penalisation parameters, so that $\lambda_i = z(1-i \cdot q/2p)$, where $q\in [0,1]$ is the FDR level and $z(\cdot)$ is the quantile function of a standard normal distribution.
 
@@ -275,7 +275,7 @@ As before, we can look at the coefficients
 ```{r}
 cbind(beta, slope_model$coefficients[-1,,20])
 ```
-and use it for prediction
+and use the package for prediction
 ```{r}
 mean((y_new - predict(object = slope_model, x = X_new)[,20])^2)
 ```
@@ -284,7 +284,7 @@ The SLOPE method was also extended to the group setting by [R15]. *Group SLOPE* 
 $$
 \hat{\beta}_\text{gSLOPE} = \min_{\beta} \left\{ \frac{1}{2}\left\|y- X \beta\right\| _2^2 +\sigma\sum_{g=1}^{G} \lambda_g \sqrt{p_g} \left\| \beta^{(g)} \right\|_2 \right\},
 $$
-where $\sigma$ acts as $\alpha$ in SLOPE, and where $\lambda_1 \geq \dotsc \geq \lambda_G$ and $\left\|\beta^{(1)} \right\|_2 \geq \dotsc \geq \left\|\beta^{(G)} \right\|_2$. The approach applies larger penalties to groups with greater effects. As is the case for SLOPE, if $\lambda_1 = \dotsc = \lambda_G$, then group SLOPE reduces to the group lasso.
+where $\sigma$ acts as $\alpha$ in SLOPE, and where $\lambda_1 \geq \dotsc \geq \lambda_G$ and $\sqrt{p_1}\left\|\beta^{(1)} \right\|_2 \geq \dotsc \geq \sqrt{p_G} \left\|\beta^{(G)} \right\|_2$. The approach applies larger penalties to groups with greater effects. As is the case for SLOPE, if $\lambda_1 = \dotsc = \lambda_G$, then group SLOPE reduces to the group lasso.
 
 To fit gSLOPE, we use the `grpSLOPE` R package (notice that it does not have as many features as the other packages used - for instance, we can only specify one value of $\sigma$, rather than a path as before):
 
@@ -307,9 +307,10 @@ mean((y_new - predict(object = gslope_model, newdata = X_new))^2)
 
 It has been further extended to the sparse-group setting by [R16] to form the *sparse-group SLOPE* (SGS) model. It is defined by
 $$
-	\hat{\boldsymbol\beta}_\text{SGS}(\lambda) = \argmin_{\boldsymbol{b}\in \mathbb{R}^p}\left\{\frac{1}{2}\left\|\boldsymbol{y}-\mathbf{X}\boldsymbol{b} \right\|_2^2 + \lambda \alpha \sum_{i=1}^{p}v_i |b|_{(i)} + \lambda (1-\alpha)\sum_{g=1}^{m}w_g \sqrt{p_g} \|\boldsymbol{b}^{(g)}\|_2 \right\},
+	\hat{\boldsymbol\beta}_\text{SGS} = \min_{\beta} \left\{\frac{1}{2}\left\|\boldsymbol{y}-\mathbf{X}\boldsymbol{b} \right\|_2^2 + \lambda \alpha \sum_{i=1}^{p}v_i |b|_{(i)} + \lambda (1-\alpha)\sum_{g=1}^{m}w_g \sqrt{p_g} \|\boldsymbol{b}^{(g)}\|_2 \right\},
 $$
 where
+
 - $\lambda$ acts as the traditional lasso penalty term. By varying $\lambda$, we are able to create a pathwise solution, as is done in the lasso approach. 
 - $\alpha \in [0,1]$ is a convex combination of SLOPE and group SLOPE, as in SGL.
 - $w_g$ are the adaptive penalty weights applied to group $g$. They are equivalent to the $\lambda_g$ penalties used in group SLOPE. As is done for group SLOPE, we have $w_1 \geq \dotsc \geq w_m$ and $|\beta^{(1)}| \geq \dotsc \geq | \beta^{(m)}|$.
