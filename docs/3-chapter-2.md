@@ -182,9 +182,8 @@ The solution to SGL is given by
 $$
 \hat{\beta}_\text{SGL} = \min_{\beta} \left\{ \frac{1}{2}\left\|y-\sum_{g=1}^{G} X^{(g)} \beta^{(g)} \right\| _2^2 + (1-\alpha)\lambda  \sum_{g=1}^{G} \sqrt{p_g} \left\| \beta^{(g)} \right\|_2 + \alpha \lambda \left\| \beta \right\|_1\right\},
 $$
-where $\alpha\in [0,1]$ controls the level of sparsity between group and variable sparsity. If $\alpha = 1$, we recover the lasso, and $\alpha=0$ recovers the group lasso. 
+where $\alpha\in [0,1]$ controls the level of sparsity between group and variable sparsity. If $\alpha = 1$, we recover the lasso, and $\alpha=0$ recovers the group lasso. The figure below shows how SGL is a convex combination of these two approaches: contour lines are shown for the group lasso (dotted), lasso (dashed), and sparse-group lasso (solid) for $p=2$ .
 
-The figure shows how SGL is a convex combination of these two approaches.
 ![Contour lines for the group lasso (dotted), lasso (dashed), and sparse-group lasso (solid) for $p=2$ [R13].](assets/images/all_lasso1.png)
 
 We can implement SGL using the `SGL` R package. We now need to specify the additional $\alpha$ parameter. This is normally set subjectively, because if we were to include this in a cross-validation tuning regime, we would need to do a grid search with $\lambda$, which is expensive. [R11] suggest the value of $\alpha = 0.95$, giving mostly the lasso penalty with only a bit of the group lasso. This is a sensible suggestion, as it allows the model to use the strengths of the lasso whilst avoiding the limitation of the group lasso (in having to select all variables as significant)
