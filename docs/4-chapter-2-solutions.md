@@ -9,6 +9,7 @@ output:
     toc_float: true
     toc_collapse: true
 ---
+# Chapter 2 solutions
 ## Q1: run the same model again but without standardising. What do you observe?
 As before, we run
 ```{r}

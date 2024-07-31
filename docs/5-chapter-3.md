@@ -9,6 +9,7 @@ output:
     toc_float: true
     toc_collapse: true
 ---
+# Chapter 3: Predicting diseases application
 We are finally ready to carry out the final objective: using penalised regression to predict diseases. 
 
 ## Load data

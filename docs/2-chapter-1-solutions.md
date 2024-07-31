@@ -9,6 +9,7 @@ output:
     toc_float: true
     toc_collapse: true
 ---
+# Chapter 1 solutions
 ## Q1: download the genetics dataset with the ID `GDS807`. Do you get the same objects?
 
 This dataset contains genetic information from patients suffering from breast cancer. We extract the data as before

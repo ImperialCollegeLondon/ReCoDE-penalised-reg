@@ -9,6 +9,7 @@ output:
     toc_float: true
     toc_collapse: true
 ---
+# Chapter 3 solutions
 ## Q1: what happens when you don't fit an intercept? What about no standardisation?
 We first turn off the intercept option.
 ```{r}

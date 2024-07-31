@@ -9,7 +9,7 @@ output:
     toc_float: true
     toc_collapse: true
 ---
-
+# Chapter 1: Downloading genetics data
 This chapter will give an overview of genetics data. We will cover:
 
 1. Genetics background (optional). In this section a brief background of genetics will be given, to give context to the problem, but it is optional, as relevant domain knowledge will also be inserted throughout the other chapters.

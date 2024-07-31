@@ -1,5 +1,5 @@
 ---
-title: 'Chapter 2: Motivation, Penalised regression, and the lasso'
+title: 'Chapter 2: Motivation, penalised regression, and the lasso'
 output:
   pdf_document:
     toc: true
@@ -9,6 +9,7 @@ output:
     toc_float: true
     toc_collapse: true
 ---
+# Chapter 2: Motivation, penalised regression, and the lasso
 This chapter will provide the (genetics) motivation for the problem we are trying to solve. It will then provide mathematical descriptions of the penalised regression methods that we will use. R code is provided for implementing the methods to simple examples, which will be expanded to the genetics data in Chapter 3. During this chapter, think about how these methods can be adapted to working with genetics data, which we will then cover in Chapter 3.
 
 # Motivation (optional)
