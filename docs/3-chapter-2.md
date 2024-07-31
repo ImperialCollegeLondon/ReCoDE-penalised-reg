@@ -9,10 +9,7 @@ output:
     toc_float: true
     toc_collapse: true
 ---
-This chapter will provide the (genetics) motivation for the problem we are trying to solve. It will then provide mathematical descriptions of the methods that we will use, including penalised regression and the lasso.
-R code is provided for implementing the methods to simple examples, which will be expanded to the genetics data in Chapter 3.
-
-The aim of this chapter is to provide the genetics and mathematical background that allows a student to understand the problem we are trying to solve and the methods we will use to solve it. This will help the student to adapt the methods accordingly to our problem and think about how they can be applied to other problems.
+This chapter will provide the (genetics) motivation for the problem we are trying to solve. It will then provide mathematical descriptions of the penalised regression methods that we will use. R code is provided for implementing the methods to simple examples, which will be expanded to the genetics data in Chapter 3. During this chapter, think about how these methods can be adapted to working with genetics data, which we will then cover in Chapter 3.
 
 # Motivation (optional)
 The genetics background for understanding the motivation was described in Chapter 1. 
@@ -49,12 +46,14 @@ Formally, the lasso finds $\beta$ estimates by solving
 $$
 \hat{\beta}_\text{lasso} = \min_\beta \left\{ \frac{1}{2}\left\|y- X \beta\right\| _2^2 + \lambda \left\| \beta \right\|_1 \right\},
 $$
-where $\left\| \cdot \right\|_1$  is the $L^1$ norm and $\left\| \cdot \right\|_2$ is the $L^2$ norm. The parameter $\lambda$ defines the amount of sparsity in the fitted model. 
-If $\lambda$ is large, very few coefficients will be non-zero and the model will be very sparse. On the other hand, small values of $\lambda$ will lead to a model with many non-zero coefficients, eventually leading to $\lambda = 0$, where we recover the ordinary least squares solution.
-We can pick $\lambda$ subjectively ourselves, but the most common approach is to fit models for different values of $\lambda$ and select the best one (the one with the lowest error) using cross-validation.
-The approach generates sparse solutions by shrinking some coefficients and setting others to 0 exactly, retaining the desirable properties of subset selection and ridge regression [R6] - this is shown in the figure below.
+where $\left\| \cdot \right\|_1$  is the $\ell^1$ norm and $\left\| \cdot \right\|_2$ is the $\ell^2$ norm. The parameter $\lambda$ defines the amount of sparsity in the fitted model. 
 
-![Solutions of the lasso (left) and ridge regression (right) for $p=2$. The blue regions are the constraint regions and the red eclipses are the contour lines of the least squared errors function. The solutions are given by where the contours hit the constraint region. This figure is from [R7].](asset/images/ridgevslasso.png)
+If $\lambda$ is large, very few coefficients will be non-zero and the model will be very sparse. On the other hand, small values of $\lambda$ will lead to a model with many non-zero coefficients, eventually leading to $\lambda = 0$, where we recover the ordinary least squares solution.
+We can pick $\lambda$ subjectively ourselves, but the most common approach is to fit models for different values of $\lambda$ and select the best one using cross-validation (the one with the lowest error).
+
+The approach generates sparse solutions by shrinking some coefficients and setting others to 0 exactly, retaining the desirable properties of subset selection and ridge regression [R6] - this is shown in the figure below. The figure shows the solutions of the lasso (left) and ridge regression (right) for $p=2$. The blue regions are the constraint regions and the red eclipses are the contour lines of the least squared errors function. The solutions are given by where the contours hit the constraint region.
+
+![Solutions of the lasso (left) and ridge regression (right) for $p=2$. The blue regions are the constraint regions and the red eclipses are the contour lines of the least squared errors function. The solutions are given by where the contours hit the constraint region. This figure is from [R7].](assets/images/ridgevslasso.png)
 
 As a consequence of the diamond shape of the lasso constraint region, if the solution occurs at the corner, the corresponding parameter $\beta_j$ is set exactly to 0 [R7], which is not possible with the ridge constraint region. For $p>2$, the diamond is a rhomboid, which has many edges, and we retain this desirable property of the lasso.
 
@@ -183,7 +182,7 @@ Using the group lasso for pathway analysis would require the assumption that all
 To fulfil this wish, [R9] introduced the *sparse-group lasso* (SGL), which combines traditional lasso with the group lasso to create models with bi-level sparsity. 
 The solution to SGL is given by
 $$
-\hat{\beta}_\text{SGL} = \min_{\beta} \left\{ \frac{1}{2n}\left\|y-\sum_{g=1}^{G} X^{(g)} \beta^{(g)} \right\| _2^2 + (1-\alpha)\lambda  \sum_{g=1}^{G} \sqrt{p_g} \left\| \beta^{(g)} \right\|_2 + \alpha \lambda \left\| \beta \right\|_1\right\},
+\hat{\beta}_\text{SGL} = \min_{\beta} \left\{ \frac{1}{2}\left\|y-\sum_{g=1}^{G} X^{(g)} \beta^{(g)} \right\| _2^2 + (1-\alpha)\lambda  \sum_{g=1}^{G} \sqrt{p_g} \left\| \beta^{(g)} \right\|_2 + \alpha \lambda \left\| \beta \right\|_1\right\},
 $$
 where $\alpha\in [0,1]$ controls the level of sparsity between group and variable sparsity. If $\alpha = 1$, we recover the lasso, and $\alpha=0$ recovers the group lasso. 
 
@@ -311,7 +310,7 @@ mean((y_new - predict(object = gslope_model, newdata = X_new))^2)
 
 It has been further extended to the sparse-group setting by [R16] to form the *sparse-group SLOPE* (SGS) model. It is defined by
 $$
-	\hat{\boldsymbol\beta}_\text{SGS}(\lambda) = \argmin_{\boldsymbol{b}\in \mathbb{R}^p}\left\{\frac{1}{2n}\left\|\boldsymbol{y}-\mathbf{X}\boldsymbol{b} \right\|_2^2 + \lambda \alpha \sum_{i=1}^{p}v_i |b|_{(i)} + \lambda (1-\alpha)\sum_{g=1}^{m}w_g \sqrt{p_g} \|\boldsymbol{b}^{(g)}\|_2 \right\},
+	\hat{\boldsymbol\beta}_\text{SGS}(\lambda) = \argmin_{\boldsymbol{b}\in \mathbb{R}^p}\left\{\frac{1}{2}\left\|\boldsymbol{y}-\mathbf{X}\boldsymbol{b} \right\|_2^2 + \lambda \alpha \sum_{i=1}^{p}v_i |b|_{(i)} + \lambda (1-\alpha)\sum_{g=1}^{m}w_g \sqrt{p_g} \|\boldsymbol{b}^{(g)}\|_2 \right\},
 $$
 where
 - $\lambda$ acts as the traditional lasso penalty term. By varying $\lambda$, we are able to create a pathwise solution, as is done in the lasso approach. 

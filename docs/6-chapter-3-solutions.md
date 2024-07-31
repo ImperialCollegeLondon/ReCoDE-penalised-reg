@@ -9,7 +9,7 @@ output:
     toc_float: true
     toc_collapse: true
 ---
-**Q1: what happens when you don't fit an intercept? What about no standardisation?**
+## Q1: what happens when you don't fit an intercept? What about no standardisation?
 We first turn off the intercept option.
 ```{r}
 library(glmnet)
@@ -50,7 +50,7 @@ max(lasso_df_no_sd$classification_rate)
 ```
 We obtain a peak accuracy of $90%$, which is lower than the one obtained without standardising ($94%$). Standardising scales the data matrix, which is important in regression models as it allows for more direct comparison between the genes, and this is a demonstration of how it can lead to better predictive performance.
 
-**Q2: apply the lasso to the cancer data**
+## Q2: apply the lasso to the cancer data.
 First, we need to split the data as for the colitis data. There are only $60$ observations this time, so we will split it 50/50.
 ```{r}
 sewd("data")
@@ -105,7 +105,7 @@ apply(lasso_model_cancer$beta, 2, function(x) length(which(x!=0)))[which.max(las
 ```
 The predictive performance here is much worse than for the colitis dataset. This is to be expected. The development of cancer follows a more complex genetic landscape, making prediction very challenging. The particularly interesting aspect here is that the model does not actually improve the predictive performance by adding genes. The best performing model is the one with no variables present, showing that the lasso was not able to identify any signal in the dataset. 
 
-**Q3 (optional): `glmnet` has the elastic net model. Apply it to the colitis data.**
+## Q3 (optional): `glmnet` has the elastic net model. Apply it to the colitis data.
 We investigated the elastic net in Chapter 2. Here, we apply it to the colitis dataset to see if we can improve upon the lasso performance.
 ```{r}
 alpha_seq = seq(from = 0, to = 1, length.out = 20)
@@ -128,7 +128,7 @@ plot(alpha_data, type = "b", xlab = "Alpha", ylab = "Classification accuracy")
 ```
 We see that the predictive performance is not hugely sensitive to the choice of $\alpha$, although it is clear that the elastic net can improve over the lasso by over $2%$, if we choose $\alpha$ to be in the region of $[0.5, 0.7]$. For the lasso, we had a peak of $93.5%$ and for elastic net we have obtained $96.1%$.
 
-**Q4: apply the group lasso to the cancer data**
+## Q4: apply the group lasso to the cancer data.
 As before:
 ```{r}
 X_gl <- t(t(train_data_cancer$X) - apply(train_data_cancer$X, 2, mean))
@@ -175,7 +175,7 @@ length(which(glasso_model_cancer$coefficients[,which.max(glasso_df_cancer$classi
 ```
 The group lasso obtains a peak accuracy of $60%$ using $15$ genes. In this case, it outperforms the lasso, showing that the grouping information is needed to extract the signal from the cancer genes.
 
-**Q5: apply SGL to the cancer data**
+## Q5: apply SGL to the cancer data.
 ```{r}
 library(sgs)
 sgl_model = fit_sgs(
@@ -213,7 +213,7 @@ SGL obtains a peak accuracy of $56.7%$ at the index of $1$, using no genes:
 length(sgl_model$selected_var[[which.max(sgl_df$classification_rate)]])
 ```
 
-**Q6 (optional): apply SLOPE to the cancer data**
+## Q6 (optional): apply SLOPE to the cancer data.
 ```{r}
 slope_model_cancer = SLOPE(
   x = train_data_cancer$X,
@@ -248,7 +248,7 @@ sum(slope_model_cancer$nonzeros[,,which.max(slope_df_cancer$classification_rate)
 ```
 SLOPE is found to have a peak classification rate of $56.7%$ using $43$ genes. So, the same accuracy as the lasso, but actually using genes. However, the genes were not found to be informative.
 
-**Q7 (optional): apply gSLOPE to the cancer data**
+## Q7 (optional): apply gSLOPE to the cancer data.
 ```{r}
 gslope_model_cancer = fit_gslope(
   X = train_data_cancer$X,
@@ -278,7 +278,7 @@ length(gslope_model_cancer$selected_var[[which.max(gslope_df_cancer$classificati
 ```
 gSLOPE obtains a peak accuracy of $33.3%$ using $417$ genes. 
 
-**Q8 (optional): can you achieve a higher predictive accuracy with SGS?**
+## Q8 (optional): can you achieve a higher predictive accuracy with SGS?
 SGS has a few hyperparameters to play around with. Feel free to try changing the different hyperparameters and seeing what the result is. Here, I will alter two to give you an insight into how they can change the model performance.
 
 We first alter $\alpha$ to be $0.5$.
@@ -333,7 +333,7 @@ length(sgs_model_3$selected_var[[which.max(sgs_cr)]])
 ```
 This model obtains a peak accuracy of $97.4%$ using only $9$ genes. Here, we have an example of how the sparse-group models can be powerful when implemented correctly. This is the highest predictive accuracy we have obtained so far.
 
-**Q9 (optional): apply SGS to the cancer data**
+## Q9 (optional): apply SGS to the cancer data.
 ```{r}
 sgs_model_cancer = fit_sgs(
   X = train_data_cancer$X,
@@ -391,7 +391,6 @@ length(sgs_model$selected_var[[which.max(sgs_cr)]])
 ```
 In this case, this did not help, as we stay at the same accuracy.
 
-## Comparison
 We end the section by comparing all of the models on the cancer dataset.
 
 ### Number of non-zero coefficients
