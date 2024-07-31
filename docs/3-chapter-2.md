@@ -341,9 +341,9 @@ mean((y_new - predict(object = sgs_model, x = X_new))^2)
 ## Notation (optional)
 Generally, we have three components to a penalised regression model:
 
-1. The penalisation parameter. This is $\lambda$ in the lasso, gLasso, SGL, and SGS, and $\alpha$ in SLOPE, and $\sigma$ in gSLOPE. This determines the degree of sparsity in a model. If the value is high, then few variables will be non-zero. This is only ever a single value defined once for the whole model.
-2. The penalty weights. The lasso does not have penalty weights explicitly defined, because they are hidden as they are just 1 for each coefficient. As SLOPE and gSLOPE are adaptive, each variable/group has a different penalty weight, defined as $\lambda_i$. For SGS, as there is more notation, the penalty weights are set to $v$ for variables and $w$ for groups.
-3. The balance parameter (only for models with more than one penalty function). For SGL and SGS, this is $\alpha$ and it defines the 'balance' between the two types of penalties used (the lasso and group lasso for SGL).
+1. The penalisation parameter. This is $\lambda$ in the lasso, gLasso, SGL, and SGS, $\alpha$ in SLOPE, and $\sigma$ in gSLOPE. This determines the degree of sparsity in a model. If the value is high, then few variables will be non-zero. This is only ever a single value defined once for the whole model, although often we fit several models for different values of $\lambda$.
+2. The penalty weights. The lasso does not have penalty weights explicitly defined, because they are hidden as they are just 1 for each coefficient. As SLOPE and gSLOPE are adaptive, each variable/group has a different penalty weight, defined as $\lambda_i$. For SGS, as there are additional components needing notation, the penalty weights are set to $v$ for variables and $w$ for groups.
+3. The balance parameter (only for models with more than one penalty function). For SGL and SGS, this is $\alpha$ and it defines the 'balance' between the two types of penalties used (the lasso and group lasso for SGL, and SLOPE and gSLOPE for SGS).
 
 The notation used in this chapter has been done to make it consistent with that used in the R functions.
 
@@ -378,16 +378,14 @@ for the practicing statistician. Biometrical Journal, 60(3):431-449, 2018. ISSN 
 - [R3] M. Ye and Y. Sun. Variable selection via penalized neural network: A drop-out-one loss approach.
 35th International Conference on Machine Learning, ICML 2018, 13:8922-8931, 2018.
 - [R4] C. Yang, X. Wan, Q. Yang, H. Xue, and W. Yu. Identifying main effects and epistatic interactions
-from large-scale SNP data via adaptive group Lasso. BMC Bioinformatics, 11(SUPPLL.1):1-11,
-2010. ISSN 14712105. doi: 10.1186/1471-2105-11-S1-S18.
+from large-scale SNP data via adaptive group Lasso. BMC Bioinformatics, 11(SUPPLL.1):1-11, 2010. ISSN 14712105. doi: 10.1186/1471-2105-11-S1-S18.
 - [R5] Y. Guo, C. Wu, M. Guo, Q. Zou, X. Liu, and A. Keinan. Combining sparse group lasso and linear
 mixed model improves power to detect genetic variants underlying quantitative traits. Frontiers
 in Genetics, 10(APR):1-11, 2019. ISSN 16648021. doi: 10.3389/fgene.2019.00271.
 - [R6] R. Tibshirani. Regression Shrinkage and Selection via the Lasso. Journal of the Royal Statistical
 Society., 58(1):267-288, 1996.
 - [R7] T. Hastie, R. Tibshirani, and J. Friedman. The Elements of Statistical Learning Data Mining,
-Inference, and Prediction, Second Edition, volume 103. Springer New York, 2nd ed. 20 edition,
-2009. ISBN 9780387848587.
+Inference, and Prediction, Second Edition, volume 103. Springer New York, 2nd ed. 20 edition, 2009. ISBN 9780387848587.
 - [R8] M. Yuan and Y. Lin. Model selection and estimation in regression with grouped variables. Journal of
 the Royal Statistical Society. Series B: Statistical Methodology, 68(1):49-67, 2006. ISSN 13697412.
 doi: 10.1111/j.1467-9868.2005.00532.x.
@@ -407,8 +405,7 @@ pages 1-8, 2010. URL http://arxiv.org/abs/1001.0736.
 - [R14] L. Jacob, G. Obozinski, and J. P. Vert. Group lasso with overlap and graph lasso. ACM International
 Conference Proceeding Series, 382, 2009. doi: 10.1145/1553374.1553431.
 - [R15] M. Bogdan, E. van den Berg, C. Sabatti, W. Su, and E. J. Candes. Slope - adaptive variable
-selection via convex optimization. Annals of Applied Statistics, 9(3):1103-1140, 2015. ISSN
-19417330. doi: 10.1214/15-AOAS842.
+selection via convex optimization. Annals of Applied Statistics, 9(3):1103-1140, 2015. ISSN 19417330. doi: 10.1214/15-AOAS842.
 - [R16] D. Brzyski, A. Gossmann, W. Su, and M. Bogdan. Group SLOPE - Adaptive Selection of Groups
 of Predictors. Journal of the American Statistical Association, 114(525):419-433, 2015. ISSN
 1537274X. doi: 10.1080/01621459.2017.1411269.
