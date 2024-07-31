@@ -198,9 +198,9 @@ length(which(glasso_model$coefficients[,which.max(glasso_df$classification_rate)
 plot(apply(glasso_model$coefficients, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero")
 abline(v = which.max(glasso_df$classification_rate), col = "red")
 ```
-The best model appears to be the one at the $\lambda$ index of $95$, achieving a peak classification score of $89.6%$ using $23 genes$. This is another example highlighting the downside of applying only groupwise sparsity. By being forced to pick all variables in a group as active, we are using a lot of noise variables to form our prediction, leading to a decrease in the classification accuracy of $4%$ in comparison to the lasso. The added complexity of applying a group penalty does not yield any benefit over the simpler lasso. We now turn to SGL to see if this can resolve some of these issues.
+The best model appears to be the one at the $\lambda$ index of $95$, achieving a peak classification score of $89.6\%$ using $23$ genes. This is another example highlighting the downside of applying only groupwise sparsity. By being forced to pick all variables in a group as active, we are using a lot of noise variables to form our prediction, leading to a decrease in the classification accuracy of $4\%$ in comparison to the lasso. The added complexity of applying a group penalty does not yield any benefit over the simpler lasso. We now turn to SGL to see if this can resolve some of these issues.
 
-**Q4: apply the group lasso to the colitis data**
+**Q4: apply the group lasso to the colitis data.**
 
 ## Sparse-group lasso (SGL)
 The `SGL` package crashes R when applied to the colitis dataset. This appears to be a bug in the package. Instead, we will use the `sgs` package, which fits SGS models. SGS models can be reduced to SGL models by using constant weights (as indicated by the choice of `v_weights` and `w_weights` below).
@@ -236,7 +236,7 @@ sgl_df = data.frame(
 max(sgl_df$classification_rate)
 which.max(sgl_df$classification_rate)
 ```
-SGL obtains a peak accuracy of $95%$ at the index of $80$, using $25$ genes:
+SGL obtains a peak accuracy of $95\%$ at the index of $80$, using $25$ genes:
 ```{r}
 length(sgl_model$selected_var[[which.max(sgl_df$classification_rate)]])
 ```

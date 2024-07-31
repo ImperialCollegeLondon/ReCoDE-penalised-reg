@@ -120,7 +120,7 @@ mean((y_new-predict(object = fit.cv, newx = X_new, s = "lambda.1se"))^2)
 
 **Q6: compare the predictions of the 1se model against the min model.**
 
-## Group lasso
+## Group lasso (gLasso)
 We mentioned in the motivation that genes come in groups and that we would like to utilize this grouping information. 
 To that end, [R8] adapted the lasso approach to the problem of selecting grouped variables by introducing the *group lasso* (gLasso). 
 Let $X^{(1)}, \dots, X^{(G)}$ be non-overlapping groups of variables (all groups are assumed to be non-overlapping), then the solution is given by
@@ -175,7 +175,7 @@ In the next section, we explore a solution to this issue, which is especially li
 
 **Q8: set the group indexing so that the signal variables are all in the same group. What do you observe?**
 
-## Sparse-group lasso
+## Sparse-group lasso (SGL)
 Using the group lasso for pathway analysis would require the assumption that all genes in a significant pathway are also significant, not allowing for additional sparsity within a group [R11]. So, one may wish to have sparsity at both the group (pathway) and variable (gene) level. 
 
 To fulfil this wish, [R9] introduced the *sparse-group lasso* (SGL), which combines traditional lasso with the group lasso to create models with bi-level sparsity. 
@@ -281,7 +281,7 @@ and use the package for prediction
 mean((y_new - predict(object = slope_model, x = X_new)[,20])^2)
 ```
 
-### Group SLOPE
+### Group SLOPE (gSLOPE)
 The SLOPE method was also extended to the group setting by [R15]. *Group SLOPE* (gSLOPE) is defined by
 $$
 \hat{\beta}_\text{gSLOPE} = \min_{\beta} \left\{ \frac{1}{2}\left\|y- X \beta\right\| _2^2 +\sigma\sum_{g=1}^{G} \lambda_g \sqrt{p_g} \left\| \beta^{(g)} \right\|_2 \right\},
@@ -307,7 +307,7 @@ and use it for prediction
 mean((y_new - predict(object = gslope_model, newdata = X_new))^2)
 ```
 
-### Sparse-group SLOPE
+### Sparse-group SLOPE (SGS)
 It has been further extended to the sparse-group setting by [R16] to form the *sparse-group SLOPE* (SGS) model. It is defined by
 $$
 	\hat{\boldsymbol\beta}_\text{SGS} = \min_{\beta} \left\{\frac{1}{2}\left\|y- X \beta \right\|_2^2 + \lambda \alpha \sum_{i=1}^{p}v_i |b|_{(i)} + \lambda (1-\alpha)\sum_{g=1}^{G}w_g \sqrt{p_g} \|\boldsymbol{b}^{(g)}\|_2 \right\},
