@@ -90,9 +90,9 @@ cbind(beta, fit.cv.ridge$glmnet.fit$beta[,20], fit.cv.best$glmnet.fit$beta[,20])
 There are many options to alter in the `glmnet` function. Generally, it is best to leave them as default, as they have been set to sensible values by the authors, unless you have a reason to change them. Some ones of interest are:
 
 - `alpha`: this is discussed in Q3.
-- `standardize`: a TRUE/FALSE indicator as to whether the data is standardised. It is good practice to standardise data, so this should be left on. It is not a good idea to standardise the data yourself and then feed this to `glmnet`, because standardisation alters how $\lambda$ is used (it scales $\lambda$ in the backend).
-- `intercept`: a TRUE/FALSE indicator as to whether an intercept is fit. Again, it is good practice to leave this on, unless you have a strong reason to believe that your regression lines goes through the origin (i.e., that your response is centered at 0, which is rare). You also should not center your response yourself, as again various changes occur in the backend if this is set to on. The two options describe show that you do not need to do these pre-processing steps yourself, `glmnet` will do it for you.
-- `penalty.factor`: this allows you to use adaptive penalty weights, which leads to the *adaptive lasso* (as in SLOPE, see the optional section, although note that this function can not be used for SLOPE, due to the sorting algorithm). 
+- `standardize`: a TRUE/FALSE indicator as to whether the data is standardised. It is good practice to standardise data, so this should be left on. It is not a good idea to standardise the data yourself and then feed this to `glmnet`, because standardisation alters how $\lambda$ is used (it scales $\lambda$ in the backend, see Q1).
+- `intercept`: a TRUE/FALSE indicator as to whether an intercept is fit. Again, it is good practice to leave this on, unless you have a strong reason to believe that your regression line goes through the origin (i.e., that your response is centered at 0, which is rare). You also should not center your response yourself, as again various changes occur in the backend if this is set to on. The two options described show that you do not need to do these pre-processing steps yourself, `glmnet` will do it for you.
+- `penalty.factor`: this allows you to use adaptive penalty weights, which leads to the *adaptive lasso* (as in SLOPE, see the optional section, although note that this function can not be used for SLOPE, due to the sorting component of SLOPE). 
 
 ## Q5: instead of using the predict function, manually code a prediction.
 A linear model is defined as
@@ -130,10 +130,10 @@ fit.cv <- cv.glmnet(x = X, y = y, family = "gaussian", nlambda = 20, lambda.min.
 mean((y_new-predict(object = fit.cv, newx = X_new, s = "lambda.1se"))^2)
 mean((y_new-predict(object = fit.cv, newx = X_new, s = "lambda.min"))^2)
 ```
-In this case, the minimum value actually obtains a lower predictive error, but generally it is still recommended to use the 1se model, to reduce variance (overfitting).
+In this case, the minimum value actually obtains a lower predictive error, but generally it is still recommended to use the 1se model to reduce variance (overfitting).
 
 ## Q7: compare the `grplasso` package to `glmnet` to see if standardisation works properly?
-To do this, we need to reduce the group lasso to the lasso. We can use singleton groups (each variable in its own group), so that the two models are equivalent. We have set the grplasso model up to use the in-built standardisation 
+To do this, we need to reduce the group lasso to the lasso. We can use singleton groups (each variable in its own group), so that the two models are equivalent. We have set the `grplasso` model up to use the in-built standardisation 
 ```{r}
 set.seed(2)
 X <- matrix(rnorm(100 * 20), 100, 20)
@@ -191,7 +191,7 @@ sgl_model_2 <- SGL(list(x=X,y=y), groups, type = "linear", nlam = 20, min.frac =
 
 cbind(beta, sgl_model$beta[,20], sgl_model_2$beta[,20])
 ```
-So it appears that standardisation is not properly implemented in the SGL` package. This highlights the issue of pre-processing when it is done incorrectly.
+So it appears that standardisation is not properly implemented in the `SGL` package. This highlights the issue of pre-processing when it is done incorrectly.
 
 ## Q10: what happens to the predictive score if we allow $\lambda$ to decrease even further?
 We can test the predictive score by decreasing $\lambda$ to quite an extreme minimum and allowing for more $\lambda$ values along the path:
@@ -216,7 +216,7 @@ plot(preds,type="l")
 ```
 We see that after a certain point, decreasing $\lambda$ further does not provide any additional benefit, only adding more model complexity. Generally, we prefer to use the simplest model that is available, without sacrificing accuracy (a concept known as Occam's Razor).
 
-We can try make the `min.frac` value even smaller
+We can try an even smaller value of `min.frac`
 ```{r}
 sgl_model <- SGL(list(x=X,y=y), groups, type = "linear", nlam = 200, min.frac = 0.000001, alpha = 0.95)
 mean((y_new-predictSGL(x = sgl_model, newX = X_new, lam = 20))^2)

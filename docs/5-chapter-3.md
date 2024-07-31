@@ -23,7 +23,7 @@ groups = data$groups
 rm(data)
 ```
 
-We want to test the models out by fitting on training data and evaluating them on a test data. Therefore, we will split the data randomly into train/test datasets. The split proportion between the two datasets is a subjective choice, but we want there to be enough data to fit an informative model, but we also need enough test data to conduct an extensive validation. Commonly used proportions of train/test are anything from 60/40 to 80/20. In this case, we use approximately 60/40.
+We want to test the models out by fitting on training data and evaluating them on test data. Therefore, we will split the data randomly into train/test datasets. The split proportion between the two datasets is a subjective choice, but we want there to be enough data to fit an informative model, but also have enough test data to conduct an extensive validation. Commonly used proportions of train/test are anything from 50/50 to 80/20. In this case, we use approximately 60/40.
 
 ```{r}
 set.seed(100)
@@ -33,11 +33,11 @@ test_data <- list(X = X[-training_ind,], y = y[-training_ind])
 ```
 
 ## Initial hyperparameters
-To fit the various models, we need to define the hyperparameters so that we are consistent across the models, allowing for fairer comparison. The parameters that we need to decide upon are:
+To fit the various models, we need to define the hyperparameters so that we are consistent across the models, allowing for fairer comparison. The parameters that we need to decide upon are (some of these were explained in Chapter 2):
 
 * `path_length`: this defines how many values of $\lambda$ we will fit the model for. We will set this to $100$ to allow for more models to be fit. Ideally we want this to be as large as possible, to give as many possible models, but we must also think about computational cost. 
-* `min_frac`: this sets the value that the final $\lambda$ value is set to, in the sense that $\lambda_{100} = \lambda{1}\times \text{min frac}$. Making this small means that we will allow denser models to be fit. We set this to $0.01$ to allow denser models to be considered.
-* `alpha`: this is only used for SGL (and SGS in the optional questions): this defines the balance between the variable and group penalties. In genetics, we usually encounter large groups, with many noisy variables. As such, we would prefer to not be limited by the group penalties, in which full groups are picked, but we still want to utilize grouping information. As such, we will use $0.99$.
+* `min_frac`: this sets the value that the final $\lambda$ value is set to, in the sense that $\lambda_{100} = \lambda_{1}\times \text{min frac}$. Making this small means that we will allow denser models to be fit. We set this to $0.01$ to allow denser models to be considered.
+* `alpha`: this is only used for SGL (and SGS in the optional questions): this defines the balance between the variable and group penalties. In genetics, we usually encounter large groups, with many noisy variables. As such, we would prefer to not be limited by the group penalties, in which full groups are picked, but we still want to utilize grouping information. As such, we will use $0.99$ (which is a slight deviation from the recommended $0.95$ value discussed in Chapter 2, showing that sometimes a problem requires deviation from the recommended usage of a model).
 * `num_iter`: this is the maximum number of iterations the fitting algorithm should fit for, if convergence is not reached. This tends to be set at $5000$, but as the dataset is quite large, we allow the fitting algorithms to run for longer.
 
 We will also use $\ell_2$ standardisation for each model and fit an intercept.
@@ -106,7 +106,7 @@ max(lasso_df$classification_rate)
 which.max(lasso_df$classification_rate)
 apply(lasso_model$beta, 2, function(x) length(which(x!=0)))[which.max(lasso_df$classification_rate)]
 ```
-So the best model appears to be the one at the $\lambda$ index of $29$, achieving a peak classification score of $93.5%$. Looking back again at the plot showing the number of genes, we see that the best model is not the one using the most amount of genes, but in fact needs only $11$ genes
+So the best model appears to be the one at the $\lambda$ index of $29$, achieving a peak classification score of $93.5\%$. Looking back again at the plot showing the number of genes, we see that the best model is not the one using the most amount of genes, but in fact needs only $11$ genes
 
 ```{r}
 plot(apply(lasso_model$beta, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero")
