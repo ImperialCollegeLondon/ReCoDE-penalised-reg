@@ -26,9 +26,9 @@ We also run the model without standardising
 fit_ns <- glmnet(x = X, y = y, family = "gaussian", nlambda = 20, lambda.min.ratio = 0.1, standardize = FALSE)
 cbind(fit$beta[,20],fit_ns$beta[,20])
 ```
-The solutions are similar but not quite the same. A lot of things happen in the background when standardization occurs. Without getting into too much detail, standardization scales $\lambda$ accordingly, to ensure we get similar solutions, but this scaling is only approximate, hence the difference. Generally, it is recommended to use standardization.
+The solutions are similar but not quite the same. A lot of things happen in the background when standardisation occurs. Without getting into too much detail, standardisation scales $\lambda$, to ensure we get similar solutions, but this scaling is only approximate, hence the difference. Generally, it is recommended to use standardisation (and when using packages as complete as `glmnet`, to let the package handle it).
 
-## Q2: what happens if we do not specify how many lambdas we want?
+## Q2: what happens if we do not specify how many $\lambda$'s we want?
 If we remove the lambda options:
 ```{r}
 set.seed(2)
@@ -42,10 +42,11 @@ length(fit$lambda)
 ```
 We see that we are now using 65 $\lambda$ values. The default value for the function is actually 100, but the function will also end the path early if the deviance ratio (`fit$dev.ratio`) is close to 1, which happened here.
 
-**Q3 (optional): the glmnet documentation states that there is a parameter alpha that we can change. What does this do?**
+## Q3 (optional): the glmnet documentation states that there is a parameter $\alpha$ that we can change. What does this do?**
 The `glmnet` function actually runs the elastic net model, which is defined by
 $$
-\hat{\beta}_\text{elastic net} = \min_\beta \left\{ \frac{1}{2}\left\|y- X \beta\right\|_2^2 + \lambda \alpha\left\| \beta \right\|_1+\lambda (1-\alpha)/2\left\| \beta \right\|_2^2 \right\}.
+\hat{\beta}_\text{elastic net} = \min_\beta \left\{ \frac{1}{2}\left\|y- X \beta\right\|_2^2 + \lambda \alpha\left\| \beta \right\|_1+\lambda 
+\frac{1-\alpha}{2}\left\| \beta \right\|_2^2 \right\}.
 $$
 It uses a combination of the lasso and ridge (similar to how SGL combines the lasso and group lasso), balanced through the $\alpha$ parameter. By default, $\alpha$ is set to 1, so that it reduces to the lasso, which is why we have not had to worry about it so far. However, elastic net has been proposed as an extension to the lasso which overcomes many of its issues, so we compare their performances here.
 ```{r}
@@ -131,7 +132,7 @@ mean((y_new-predict(object = fit.cv, newx = X_new, s = "lambda.min"))^2)
 ```
 In this case, the minimum value actually obtains a lower predictive error, but generally it is still recommended to use the 1se model, to reduce variance (overfitting).
 
-## Q7: compare the `grplasso` package to `glmnet` to see if standardization works properly?
+## Q7: compare the `grplasso` package to `glmnet` to see if standardisation works properly?
 To do this, we need to reduce the group lasso to the lasso. We can use singleton groups (each variable in its own group), so that the two models are equivalent. We have set the grplasso model up to use the in-built standardisation 
 ```{r}
 set.seed(2)
