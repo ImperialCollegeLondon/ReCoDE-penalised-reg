@@ -307,13 +307,13 @@ mean((y_new - predict(object = gslope_model, newdata = X_new))^2)
 
 It has been further extended to the sparse-group setting by [R16] to form the *sparse-group SLOPE* (SGS) model. It is defined by
 $$
-	\hat{\boldsymbol\beta}_\text{SGS} = \min_{\beta} \left\{\frac{1}{2}\left\|\boldsymbol{y}-\mathbf{X}\boldsymbol{b} \right\|_2^2 + \lambda \alpha \sum_{i=1}^{p}v_i |b|_{(i)} + \lambda (1-\alpha)\sum_{g=1}^{m}w_g \sqrt{p_g} \|\boldsymbol{b}^{(g)}\|_2 \right\},
+	\hat{\boldsymbol\beta}_\text{SGS} = \min_{\beta} \left\{\frac{1}{2}\left\|y- X \beta \right\|_2^2 + \lambda \alpha \sum_{i=1}^{p}v_i |b|_{(i)} + \lambda (1-\alpha)\sum_{g=1}^{G}w_g \sqrt{p_g} \|\boldsymbol{b}^{(g)}\|_2 \right\},
 $$
 where
 
 - $\lambda$ acts as the traditional lasso penalty term. By varying $\lambda$, we are able to create a pathwise solution, as is done in the lasso approach. 
 - $\alpha \in [0,1]$ is a convex combination of SLOPE and group SLOPE, as in SGL.
-- $w_g$ are the adaptive penalty weights applied to group $g$. They are equivalent to the $\lambda_g$ penalties used in group SLOPE. As is done for group SLOPE, we have $w_1 \geq \dotsc \geq w_m$ and $|\beta^{(1)}| \geq \dotsc \geq | \beta^{(m)}|$.
+- $w_g$ are the adaptive penalty weights applied to group $g$. They are equivalent to the $\lambda_g$ penalties used in group SLOPE. As is done for group SLOPE, we have $w_1 \geq \dotsc \geq w_G$ and $\sqrt{p_1}\left\|\beta^{(1)} \right\|_2 \geq \dotsc \geq \sqrt{p_G} \left\|\beta^{(G)} \right\|_2$.
 - $v_i$ are the adaptive penalty weights applied to the individual variables. They are equivalent to the $\lambda_i$ penalties used in SLOPE. We have that $v_1 \geq \dotsc \geq v_p$ and $|\beta_1| \geq \dotsc \geq |\beta_p|$.
 
 If $v_1 =\dotsc = v_{p}$ and $w_1 = \dotsc = w_G$, then SGS reduces to SGL. SGS is suitable for pathway analysis, as not only does it allow for both genes and pathways to be selected, but it will also control the FDR of the solution at a bi-level.
