@@ -55,7 +55,7 @@ The approach generates sparse solutions by shrinking some coefficients and setti
 
 ![Solutions of the lasso (left) and ridge regression (right) for $p=2$. The blue regions are the constraint regions and the red eclipses are the contour lines of the least squared errors function. The solutions are given by where the contours hit the constraint region. This figure is from [R7].](assets/images/ridgevslasso.png)
 
-As a consequence of the diamond shape of the lasso constraint region, if the solution occurs at the corner, the corresponding parameter $\beta_j$ is set exactly to 0 [R7], which is not possible with the ridge constraint region. For $p>2$, the diamond is a rhomboid, which has many edges, and we retain this desirable property of the lasso.
+As a consequence of the diamond shape of the lasso constraint region, if the solution occurs at the corner, the corresponding parameter $\beta_j$ is set exactly to 0, which is not possible with the ridge constraint region [R7]. For $p>2$, the diamond is a rhomboid, which has many edges, and we retain this desirable property of the lasso.
 
 We can implement the lasso in R using the `glmnet` package, which is one of the most widely used packages. To run the lasso, we create some synthetic Gaussian data
 ```{r}
@@ -73,9 +73,9 @@ fit <- glmnet(x = X, y = y, family = "gaussian", nlambda = 20, lambda.min.ratio 
 
 **Q1: run the same model again but without standardising. What do you observe?** 
 
-**Q2: what happens if we do not specify how many lambdas we want?**
+**Q2: what happens if we do not specify how many $\lambda$'s we want?**
 
-**Q3 (optional): the glmnet documentation states that there is a parameter alpha that we can change. What does this do?**
+**Q3 (optional): the glmnet documentation states that there is a parameter $\alpha$ that we can change. What does this do?**
 
 **Q4 (optional): look at the glmnet documentation - which parameters might be interesting to vary?**
 
@@ -94,21 +94,19 @@ So we now have 20 lasso models and we want to pick a single one to use for predi
 fit.cv <- cv.glmnet(x = X, y = y, family = "gaussian", nlambda = 20, lambda.min.ratio = 0.1)
 print(fit.cv)
 ```
-In the print-out, there are actually two different "minimums" defined. The first is `min`, which is the absolute minimum error obtained by any of the models.
-The other is `1se`, which is the simplest model that is within one-standard error of the minimum. This is often used as a more conservative estimate of the best model, as it is less likely to be overfitting the data.
-Using the `1se` model, we can compare the obtained coefficients to the true beta values
+In the print-out, there are actually two different "minimums" defined. The first is `min`, which is the absolute minimum error obtained by any of the models. The other is `1se`, which is the simplest model that is within one-standard error of the minimum. This is often used as a more conservative estimate of the best model, as it is less likely to be overfitting the data. Using the `1se` model, we can compare the obtained coefficients to the true beta values
 ```{r}
 cbind(beta,fit.cv$glmnet.fit$beta[,19])
 ```
 and we find the lasso does very well. It correctly picks out the first five variables as those with a signal and correctly sets the rest to zero. In Chapter 3, where we apply these methods to real data, we will instead pick $\lambda$ to be the value that minimises the error on a test data set.
 
-We can now use these fitted coefficients to predict y. To fairly test the accuracy of the model, we first need to generate some new data (that uses the same $\beta$ signal)
+We can now use these fitted coefficients to predict $y$. To fairly test the accuracy of the model, we first need to generate some new data (that uses the same $\beta$ signal)
 ```{r}
 set.seed(3)
 X_new <- matrix(rnorm(10 * 20), 10, 20)
 y_new <- X_new%*%beta + rnorm(10)
 ```
-and we can predict the new y values using the lasso model
+and we can predict the new $y$s values using the lasso model
 ```{r}
 cbind(y_new,predict(object = fit.cv, newx = X_new, s = "lambda.1se"))
 ```
@@ -140,9 +138,9 @@ For simplicity, in this case we will manually assign the variables into groups o
 groups <- rep(1:5,4)
 ```
 The `grplasso` package does not automatically calculate a path of $\lambda$ values, so we compute those first, starting with the first $\lambda$ value using the `lambdamax` function from the package.
-Additionally, the package does not implement an intercept and standardisation in the same way as `glmnet`, so we do this manually. In general, when working with penalised regression models, it is a good idea to fit an intercept and apply standardisation. In general, when in doubt about whether a package performs standardization properly, a useful check is to compare it to `glmnet`, as this is the gold standard of R packages.
+Additionally, the package does not implement an intercept and standardisation in the same way as `glmnet`, so we do this manually. In general, when working with penalised regression models, it is a good idea to fit an intercept and apply standardisation. In general, when in doubt about whether a package performs standardisation properly, a useful check is to compare it to `glmnet`, as this is the gold standard of R packages (most penalised regression models reduce to the lasso under certain hyperparameter choices, so a direct comparison is possible most of the time).
 
-**Q7: compare the `grplasso` package to `glmnet` to see if standardization works properly?**
+**Q7: compare the `grplasso` package to `glmnet` to see if standardisation works properly?**
 
 ```{r}
 library(grplasso)
@@ -167,7 +165,7 @@ Comparing the model coefficients to the true ones (for the most saturated model,
 ```{r}
 cbind(beta, glasso_model$coefficients[-1,20])
 ```
-and using it to predict the output (you will notice we have to do a few things manually, such as adding the intercept to `X_new`, this is because many R packages do not have as complete features as `glmnet`)
+and using it to predict the output (you will notice we have to do a few things manually, such as adding the intercept to `X_new`, because, as mentioned, many R packages do not have as complete features as `glmnet`)
 ```{r}
 mean((y_new-predict(object = glasso_model, newdata = cbind(1,X_new))[,20])^2)
 ```
