@@ -43,6 +43,9 @@ Running the function on the full data matrix will be too computationally intensi
 library(VIM)
 aggr(X[,1000:1020])
 ```
+
+![VIM plot.](assets/images/vim_plot.png)
+
 We observe on the left plot that there is a fair amount of variance in the amount of missing values between the genes. Some genes have no missing values, while others have only missing values.
 On the right plot, we can see which combinations of missingness occur most often. The most frequently occuring combination is of ten genes. This plot is very useful for finding patterns of missingness.
 

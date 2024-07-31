@@ -83,12 +83,18 @@ fit <- glmnet(x = X, y = y, family = "gaussian", nlambda = 20, lambda.min.ratio 
 The model will be run from the value of $\lambda$ that generates a null model (no active variables) to the final value of $\lambda$ that is a specified proportion of the first value (the value of `lambda.min.ratio`).
 We can visualise the path of $\lambda$ values, which take a log-linear shape (by design)
 ```{r}
-plot(fit$lambda,type="b")
+plot(fit$lambda,type="b", ylab="Value")
 ```
+
+![Lasso 1.](assets/images/lasso_plot_1.png)
+
 We can also visualise some of the active coefficients using
 ```{r}
 plot(fit)
 ```
+
+![Lasso 2.](assets/images/lasso_plot_2.png)
+
 and we can observe that the coefficients become larger in absolute value as the value of $\lambda$ become smaller.
 So we now have 20 lasso models and we want to pick a single one to use for prediction. The most popular option is to use cross-validation:
 ```{r}
@@ -210,8 +216,11 @@ preds = rep(0,20)
 for (i in 1:20){
     preds[i] = mean((y_new-predictSGL(x = sgl_model, newX = X_new, lam = i))^2)
 }
-plot(preds,type="b")
+plot(preds,type="b", ylab="Error")
 ```
+
+![SGL plot 1.](assets/images/sgl_plot_1.png)
+
 and we see that the prediction improves as $\lambda$ decrease (that is, as the coefficients become larger and more variables enter the model).
 
 **Q10: what happens to the predictive score if we allow $\lambda$ to decrease even further?**
@@ -227,7 +236,7 @@ In genetic data, genes are usually highly correlated with one another. We can vi
 ```{r}
 library(reshape2)
 library(ggplot2)
-gene_data <- readRDS("colitis-data.RDS")
+gene_data <- readRDS("colitis-data-c3.RDS")
 
 corr_mat = cor(gene_data[[1]][,sample(1:ncol(gene_data[[1]]),size = 250)]) # create correlation matrix of subset
 
@@ -247,6 +256,9 @@ ggplot(data = melted_corr_mat, aes(x = Var1, y = Var2, fill = value)) +
         axis.ticks = element_blank()) +  # Remove axis ticks
   coord_fixed()
 ```
+
+![corr plot.](assets/images/corr_plot.png)
+
 We observe many regions of very high corraltion. 
 
 The lasso is able to recover the support of a model if the covariates are not too correlated, but struggles for highly correlated data [R14], making it suboptimal for use with genetics data. Additionally, when discovering associated genes, we want to reduce the number of false discoveries; that is, the false discovery rate (FDR). These two aspects motivated the proposal of the SLOPE method.
@@ -269,8 +281,11 @@ slope_model = SLOPE(x = X, y = y, family = "gaussian", alpha_min_ratio = 0.1, pa
 ```
 Here, `alpha_min_ratio` acts as `lambda.min.ratio` in the `glmnet` function. We can first look at the penalty weights
 ```{r}
-plot(slope_model$lambda, type = "b")
+plot(slope_model$lambda, type = "b", ylab="Value")
 ```
+
+![VIM plot.](assets/images/slope_plot_1.png)
+
 As before, we can look at the coefficients
 
 ```{r}
@@ -296,8 +311,11 @@ gslope_model = grpSLOPE(X = X, y = y, group = groups, sigma = 0.01, fdr = 0.1)
 ```
 We can look at the penalty weights
 ```{r}
-plot(gslope_model$lambda, type = "b")
+plot(gslope_model$lambda, type = "b", ylab = "Value")
 ```
+
+![gslope plot.](assets/images/gslope_plot_1.png)
+
 and the coefficients (where the group penalty limitation is seen again)
 ```{r}
 cbind(beta, gslope_model$beta)

@@ -67,10 +67,16 @@ We can investigate the fitted values
 ```{r}
 plot(lasso_model)
 ```
+
+![VIM plot.](assets/images/real_data_plot_1.png)
+
 and also see how many variables are entering the model as we decrease $\lambda$:
 ```{r}
 plot(apply(lasso_model$beta, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero")
 ```
+
+![VIM plot.](assets/images/real_data_plot_2.png)
+
 At the most saturated point, we have about $30$ genes in the model.
 
 ### Prediction
@@ -101,6 +107,9 @@ We can now view the classification rate as a function of the $\lambda$ index.
 plot(x = lasso_df$lambda_index, y = lasso_df$classification_rate, type="l", xlab="Lambda index", ylab = "Classification accuracy")
 abline(v = which.max(lasso_df$classification_rate), col = "red") # where the maximum is located
 ```
+
+![VIM plot.](assets/images/real_data_plot_3.png)
+
 ```{r}
 max(lasso_df$classification_rate)
 which.max(lasso_df$classification_rate)
@@ -113,16 +122,21 @@ plot(apply(lasso_model$beta, 2, function(x) length(which(x!=0))), type="l", xlab
 abline(v = which.max(lasso_df$classification_rate), col = "red")
 ```
 
+![VIM plot.](assets/images/real_data_plot_4.png)
+
 To gain further insight into the best lasso predictive model, we can plot the decision boundaries. Decision boundaries in classification problems show how close each data point was to being classified differently (we are plotting the class probabilities).
 
 ```{r}
-false_pred = which(!ifelse(lasso_class_prob>=0.5,1,0) == test_data$y)
 lasso_class_prob <- predict(lasso_model, test_data$X, type = "response")[,which.max(lasso_df$classification_rate)]
+false_pred = which(!ifelse(lasso_class_prob>=0.5,1,0) == test_data$y)
 plot(lasso_class_prob,pch=16, ylab = "Class probability",ylim=c(0,1))
 abline(h=0.5)
 points(test_data$y,col=ifelse(test_data$y=="TRUE","forestgreen","red"),pch=4)
 points(x = false_pred, y = lasso_class_prob[false_pred], col = "orange", pch = 16)
 ```
+
+![VIM plot.](assets/images/real_data_plot_5.png)
+
 The coloured crosses represent the true class of the observations. The lasso appears fairly confident on most observations, not choosing too many probabilities close to the decision boundary of $0.5$. The orange points highlight the incorrectly identified observations. The cluster of three on the right are close to the boundary, but the other two on the left are not.
 
 **Q1: what happens when you don't fit an intercept? What about no standardisation?**
@@ -161,10 +175,16 @@ As before, we investigate the solution
 ```{r}
 plot(glasso_model)
 ```
+
+![VIM plot.](assets/images/real_data_plot_6.png)
+
 and also see how many variables are entering the model as we decrease $\lambda$:
 ```{r}
 plot(apply(glasso_model$coefficients, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero")
 ```
+
+![VIM plot.](assets/images/real_data_plot_7.png)
+
 At the most saturated point, we have $24$ genes in the model.
 
 ### Prediction
@@ -190,6 +210,9 @@ We now perform the same visualisations as for the lasso.
 plot(x = glasso_df$lambda_index, y = glasso_df$classification_rate, type="l", xlab="Lambda index", ylab = "Classification accuracy")
 abline(v = which.max(glasso_df$classification_rate), col = "red") # where the maximum is located
 ```
+
+![VIM plot.](assets/images/real_data_plot_8.png)
+
 ```{r}
 max(glasso_df$classification_rate)
 length(which(glasso_model$coefficients[,which.max(glasso_df$classification_rate)]!=0))
@@ -198,6 +221,9 @@ length(which(glasso_model$coefficients[,which.max(glasso_df$classification_rate)
 plot(apply(glasso_model$coefficients, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero")
 abline(v = which.max(glasso_df$classification_rate), col = "red")
 ```
+
+![VIM plot.](assets/images/real_data_plot_9.png)
+
 The best model appears to be the one at the $\lambda$ index of $95$, achieving a peak classification score of $89.6\%$ using $23$ genes. This is another example highlighting the downside of applying only groupwise sparsity. By being forced to pick all variables in a group as active, we are using a lot of noise variables to form our prediction, leading to a decrease in the classification accuracy of $4\%$ in comparison to the lasso. The added complexity of applying a group penalty does not yield any benefit over the simpler lasso. We now turn to SGL to see if this can resolve some of these issues.
 
 **Q4: apply the group lasso to the colitis data.**
@@ -241,7 +267,8 @@ SGL obtains a peak accuracy of $95\%$ at the index of $80$, using $25$ genes:
 length(sgl_model$selected_var[[which.max(sgl_df$classification_rate)]])
 ```
 We observe that SGL outperforms the lasso and group lasso, highlighting the benefit of applying sparse-group penalisation. The group lasso is limited as it is forced to make every gene within an active group active, leading to a lot of noise being included in the model. On the other hand, the lasso does not utilise grouping information. SGL is able to overcome both of these issues.
-**Q5: apply SGL to the colitis data**
+
+**Q5: apply SGL to the colitis data.**
 
 ## Comparison of models
 ### Number of non-zero coefficients
@@ -249,14 +276,22 @@ We observe that SGL outperforms the lasso and group lasso, highlighting the bene
 plot(apply(lasso_model$beta, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero", ylim = c(0,40))
 lines(apply(glasso_model$coefficients, 2, function(x) length(which(x!=0))), type="l", col = "red")
 lines(unlist(lapply(sgl_model$selected_var,length)), type = "l", col = "brown")
+legend("topright", legend = c("Lasso", "gLasso", "SGL"), 
+       col = c("black", "red", "brown"), lty = 1, cex = 0.8)
 ```
+
+![VIM plot.](assets/images/real_data_plot_10.png)
 
 ### Prediction accuracies
 ```{r}
 plot(lasso_df$classification_rate, type="l", xlab="Lambda index", ylab = "Number non-zero")
 lines(glasso_df$classification_rate, type="l", col = "red")
 lines(sgl_df$classification_rate, type = "l", col = "brown")
+legend("topright", legend = c("Lasso", "gLasso", "SGL"), 
+       col = c("black", "red", "brown"), lty = 1, cex = 0.8)
 ```
+
+![VIM plot.](assets/images/real_data_plot_11.png)
 
 | Model    | Classification accuracy (%) | Genes used |
 |----------|-----------------------------|------------|
@@ -306,7 +341,7 @@ slope_df = data.frame(
 max(slope_df$classification_rate)
 which.max(slope_df$classification_rate)
 ```
-SLOPE is found to have a peak classification rate of $94.8%$ at index $30$. 
+SLOPE is found to have a peak classification rate of $94.8\%$ at index $30$. 
 
 ```{r}
 max(slope_df$classification_rate)
@@ -315,7 +350,7 @@ sum(slope_model$nonzeros[,,which.max(slope_df$classification_rate)])
 ```
 This model uses $16$ genes.
 
-**Q6 (optional): apply SLOPE to the colitis data**
+**Q6 (optional): apply SLOPE to the colitis data.**
 
 ### Group SLOPE (gSLOPE)
 To fit a gSLOPE model, in this seciton we will use the `sgs` package instead of the `grpSLOPE` package, as in Chapter 2. The `sgs` package has a function for fitting gSLOPE models which contains useful features that the `grpSLOPE` package does not have.
@@ -352,13 +387,13 @@ gslope_df = data.frame(
 max(gslope_df$classification_rate)
 which.max(gslope_df$classification_rate)
 ```
-gSLOPE obtains a peak accuracy of $81%$ at the index of 69.
+gSLOPE obtains a peak accuracy of $81\%$ at the index of 69.
 ```{r}
 length(gslope_model$selected_var[[which.max(gslope_df$classification_rate)]])
 ```
 And this model uses $43$ genes, which is over twice the amount that SLOPE uses. This is another illustration of the downside of applying just a group penalty. Not only is the prediction accuracy lower, but the model also uses more genes. 
 
-**Q7 (optional): apply gSLOPE to the colitis data**
+**Q7 (optional): apply gSLOPE to the colitis data.**
 
 ### Sparse-group SLOPE (SGS)
 The final model we will test is sparse-group SLOPE (SGS), which applies adaptive penalisation at both the variable and group levels. In theory, this model should apply the strongest amount of penalisation, leading to the most sparse models. We can use the `sgs` package, as discussed in Chapter 2. SGS has three different choices of penalty sequences. Here, we have set `pen_method = 3`, as this is the fastest (computationally) sequence to calculate.
@@ -396,37 +431,42 @@ sgs_df = data.frame(
 max(sgs_df$classification_rate)
 which.max(sgs_df$classification_rate)
 ```
-SGS obtains a peak accuracy of $95%$ at the index of $68$, using $23$ genes:
+SGS obtains a peak accuracy of $95\%$ at the index of $68$, using $23$ genes:
 ```{r}
 length(sgs_model$selected_var[[which.max(sgs_df$classification_rate)]])
 ```
 
 **Q8 (optional): can you achieve a higher predictive accuracy with SGS?**
-**Q9 (optional): apply SGS to the colitis data**
+
+**Q9 (optional): apply SGS to the colitis data.**
 
 ### Number of non-zero coefficients
 ```{r}
-plot(apply(lasso_model$beta, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero")
+plot(apply(lasso_model$beta, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero", ylim=c(0,60))
 lines(apply(glasso_model$coefficients, 2, function(x) length(which(x!=0))), type="l", col = "red")
-lines(lapply(sgl_model$selected_var,length), type = "l", col = "brown")
+lines(unlist(lapply(sgl_model$selected_var,length)), type = "l", col = "brown")
 lines(apply(slope_model$nonzeros,3,sum), type = "l", col = "blue")
-lines(lapply(gslope_model$selected_var,length), type = "l", col = "green")
-lines(lapply(sgs_model$selected_var,length), type = "l", col = "purple")
-legend("topright", legend = c("Lasso", "gLasso", "SGL", "SLOPE", "gSLOPE", "SGS"),
-       col = c("black", "red", "brown", "blue", "green", "purple"), lty = 1)
+lines(unlist(lapply(gslope_model$selected_var,length)), type = "l", col = "green")
+lines(unlist(lapply(sgs_model$selected_var,length)), type = "l", col = "purple")
+legend("topleft", legend = c("Lasso", "gLasso", "SGL", "SLOPE", "gSLOPE", "SGS"),
+       col = c("black", "red", "brown", "blue", "green", "purple"), lty = 1, )
 ```
+
+![VIM plot.](assets/images/real_data_plot_12.png)
 
 ### Prediction accuracies
 ```{r}
-plot(lasso_df$classification_rate, type="l", xlab="Lambda index", ylab = "Number non-zero")
+plot(lasso_df$classification_rate, type="l", xlab="Lambda index", ylab = "Classification accuracy", ylim=c(0.3,1))
 lines(glasso_df$classification_rate, type="l", col = "red")
 lines(sgl_df$classification_rate, type = "l", col = "brown")
 lines(slope_df$classification_rate, type = "l", col = "blue")
 lines(gslope_df$classification_rate, type = "l", col = "green")
 lines(sgs_df$classification_rate, type = "l", col = "purple")
-legend("topright", legend = c("Lasso", "gLasso", "SGL", "SLOPE", "gSLOPE", "SGS"),
+legend("bottomright", legend = c("Lasso", "gLasso", "SGL", "SLOPE", "gSLOPE", "SGS"),
        col = c("black", "red", "brown", "blue", "green", "purple"), lty = 1)
 ```
+
+![VIM plot.](assets/images/real_data_plot_13.png)
 
 | Model    | Classification accuracy (%) | Genes used |
 |----------|-----------------------------|------------|

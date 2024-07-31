@@ -67,8 +67,11 @@ for (i in 1:length(alpha_seq)){
     fit.cv <- cv.glmnet(x = X, y = y, family = "gaussian", nlambda = 20, lambda.min.ratio = 0.1, alpha = alpha_seq[i])
     preds$error[i] = mean((y_new-predict(object = fit.cv, newx = X_new, s = "lambda.1se"))^2)
 }
-plot(preds$alpha, preds$error, type = "b")
+plot(preds$alpha, preds$error, type = "b", ylab="Error")
 ```
+
+![soln plot.](assets/images/chp2_sol_plot_1.png)
+
 Clearly the model performs badly for $\alpha = 0$, which is ridge regression. This is not surprising, as ridge regression does not shrink coefficients exactly to zero, so if we take a close look at the coefficients, we notice that it is forced to keep coefficients active
 ```{r}
 set.seed(2)
@@ -212,8 +215,11 @@ preds = rep(0,200)
 for (i in 1:200){
     preds[i] = mean((y_new-predictSGL(x = sgl_model, newX = X_new, lam = i))^2)
 }
-plot(preds,type="l")
+plot(preds,type="l",ylab="Error")
 ```
+
+![chp2_sol_plot_2.](assets/images/chp2_sol_plot_2.png)
+
 We see that after a certain point, decreasing $\lambda$ further does not provide any additional benefit, only adding more model complexity. Generally, we prefer to use the simplest model that is available, without sacrificing accuracy (a concept known as Occam's Razor).
 
 We can try an even smaller value of `min.frac`
@@ -225,8 +231,12 @@ preds = rep(0,20)
 for (i in 1:20){
     preds[i] = mean((y_new-predictSGL(x = sgl_model, newX = X_new, lam = i))^2)
 }
-plot(preds,type="b")
+plot(preds,type="b",ylab="Error")
 ```
+
+![chp2_sol_plot_3.](assets/images/chp2_sol_plot_3.png)
+
+
 The prediction error continues to decrease but we are adding a lot of variance into the model by overfitting. This is ok for a simple example like this, but when there are more predictors it can become problematic, especially if the divide between signal and noise is less apparant.
 
 ## Q11: vary $\alpha$ in the region $[0,1]$. What do you observe?
@@ -248,8 +258,11 @@ for (i in 1:length(alpha_seq)){
     fit <- SGL(list(x=X,y=y), groups, type = "linear", nlam = 20, min.frac = 0.001, alpha = alpha_seq[i])
     preds$error[i] = mean((y_new-predictSGL(x = fit, newX = X_new, lam = 20))^2)
 }
-plot(preds$alpha, preds$error, type = "b")
+plot(preds$alpha, preds$error, type = "b", ylab="Error",xlab="Alpha")
 ```
+
+![chp2_sol_plot_4.](assets/images/chp2_sol_plot_4.png)
+
 We observe the error shrinking as $\alpha$ gets close to 1 (the lasso). This is expected in this scenario, as we did not add a grouping structure to the synthetic data.
 
 ## Q12: can you use the `SGL` R package to fit the lasso and group lasso?

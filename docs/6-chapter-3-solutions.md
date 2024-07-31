@@ -49,7 +49,7 @@ lasso_df_no_sd = data.frame(
 )
 max(lasso_df_no_sd$classification_rate)
 ```
-We obtain a peak accuracy of $90%$, which is lower than the one obtained without standardising ($94%$). Standardising scales the data matrix, which is important in regression models as it allows for more direct comparison between the genes, and this is a demonstration of how it can lead to better predictive performance.
+We obtain a peak accuracy of $90\%$, which is lower than the one obtained without standardising ($94\%$). Standardising scales the data matrix, which is important in regression models as it allows for more direct comparison between the genes, and this is a demonstration of how it can lead to better predictive performance.
 
 ## Q2: apply the lasso to the cancer data.
 First, we need to split the data as for the colitis data. There are only $60$ observations this time, so we will split it 50/50.
@@ -81,10 +81,16 @@ The fitted values are visualised using
 ```{r}
 plot(lasso_model_cancer)
 ```
+
+![VIM plot.](assets/images/soln_rd_1.png)
+
 There appears to be a trend towards negative coefficients, indicating that there are genes present which reduce the probability of cancer. Looking at how the variables enter the model:
 ```{r}
 plot(apply(lasso_model_cancer$beta, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero")
 ```
+
+![VIM plot.](assets/images/soln_rd_2.png)
+
 At the most saturated point, we have just below $30$ genes in the model. Now, testing this model on new data. 
 ```{r}
 # calculate predictions
@@ -104,6 +110,9 @@ max(lasso_df_cancer$classification_rate)
 which.max(lasso_df_cancer$classification_rate)
 apply(lasso_model_cancer$beta, 2, function(x) length(which(x!=0)))[which.max(lasso_df_cancer$classification_rate)]
 ```
+
+![VIM plot.](assets/images/soln_rd_3.png)
+
 The predictive performance here is much worse than for the colitis dataset. This is to be expected. The development of cancer follows a more complex genetic landscape, making prediction very challenging. The particularly interesting aspect here is that the model does not actually improve the predictive performance by adding genes. The best performing model is the one with no variables present, showing that the lasso was not able to identify any signal in the dataset. 
 
 ## Q3 (optional): `glmnet` has the elastic net model. Apply it to the colitis data.
@@ -127,7 +136,10 @@ en_cr <- apply(en_preds, 2, function(x) mean(x == test_data$y))
 alpha_data$pred_score[alpha_id] = max(en_cr)}
 plot(alpha_data, type = "b", xlab = "Alpha", ylab = "Classification accuracy")
 ```
-We see that the predictive performance is not hugely sensitive to the choice of $\alpha$, although it is clear that the elastic net can improve over the lasso by over $2%$, if we choose $\alpha$ to be in the region of $[0.5, 0.7]$. For the lasso, we had a peak of $93.5%$ and for elastic net we have obtained $96.1%$.
+
+![VIM plot.](assets/images/soln_rd_4.png)
+
+We see that the predictive performance is not hugely sensitive to the choice of $\alpha$, although it is clear that the elastic net can improve over the lasso by over $2\%$, if we choose $\alpha$ to be in the region of $[0.5, 0.7]$. For the lasso, we had a peak of $93.5\%$ and for elastic net we have obtained $96.1\%$.
 
 ## Q4: apply the group lasso to the cancer data.
 As before:
@@ -153,10 +165,13 @@ glasso_model_cancer <- grplasso(
 )
 ```
 
-As before, we can see how many variables are entering the model as we decrease $\lambda$:
+We can see how many variables are entering the model as we decrease $\lambda$:
 ```{r}
 plot(apply(glasso_model_cancer$coefficients, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero")
 ```
+
+![VIM plot.](assets/images/soln_rd_5.png)
+
 At the most saturated point, we have about $40$ genes in the model. Performing the prediction
 ```{r}
 glasso_preds <- predict(object = glasso_model_cancer, newdata = cbind(1,test_data_cancer$X), type = "response")
@@ -174,12 +189,15 @@ abline(v = which.max(glasso_df_cancer$classification_rate), col = "red") # where
 max(glasso_df_cancer$classification_rate)
 length(which(glasso_model_cancer$coefficients[,which.max(glasso_df_cancer$classification_rate)]!=0))
 ```
-The group lasso obtains a peak accuracy of $60%$ using $15$ genes. In this case, it outperforms the lasso, showing that the grouping information is needed to extract the signal from the cancer genes.
+
+![VIM plot.](assets/images/soln_rd_6.png)
+
+The group lasso obtains a peak accuracy of $60\%$ using $15$ genes. In this case, it outperforms the lasso, showing that the grouping information is needed to extract the signal from the cancer genes.
 
 ## Q5: apply SGL to the cancer data.
 ```{r}
 library(sgs)
-sgl_model = fit_sgs(
+sgl_model_cancer = fit_sgs(
   X = train_data_cancer$X,
   y = train_data_cancer$y,
   groups = groups_cancer,
@@ -197,21 +215,21 @@ sgl_model = fit_sgs(
 ```
 Performing the predictiton:
 ```{r}
-sgl_preds = predict(sgl_model, x = test_data_cancer$X)
+sgl_preds = predict(sgl_model_cancer, x = test_data_cancer$X)
 sgl_cr <- apply(sgl_preds$class, 2, function(x) mean(x == test_data_cancer$y))
 
 # put classification scores into data frame
-sgl_df = data.frame(
+sgl_df_cancer = data.frame(
   model = "SGL",
   lambda_index = 1:path_length,
   classification_rate = sgl_cr
 )
-max(sgl_df$classification_rate)
-which.max(sgl_df$classification_rate)
+max(sgl_df_cancer$classification_rate)
+which.max(sgl_df_cancer$classification_rate)
 ```
-SGL obtains a peak accuracy of $56.7%$ at the index of $1$, using no genes:
+SGL obtains a peak accuracy of $56.7\%$ at the index of $1$, using no genes:
 ```{r}
-length(sgl_model$selected_var[[which.max(sgl_df$classification_rate)]])
+length(sgl_model_cancer$selected_var[[which.max(sgl_df_cancer$classification_rate)]])
 ```
 
 ## Q6 (optional): apply SLOPE to the cancer data.
@@ -277,7 +295,7 @@ gslope_df_cancer = data.frame(
 max(gslope_df_cancer$classification_rate)
 length(gslope_model_cancer$selected_var[[which.max(gslope_df_cancer$classification_rate)]])
 ```
-gSLOPE obtains a peak accuracy of $33.3%$ using $417$ genes. 
+gSLOPE obtains a peak accuracy of $33.3\%$ using $417$ genes, so it is picking up a lot of noise. 
 
 ## Q8 (optional): can you achieve a higher predictive accuracy with SGS?
 SGS has a few hyperparameters to play around with. Feel free to try changing the different hyperparameters and seeing what the result is. Here, I will alter two to give you an insight into how they can change the model performance.
@@ -306,7 +324,7 @@ sgs_cr <- apply(sgs_preds$class, 2, function(x) mean(x == test_data$y))
 max(sgs_cr)
 length(sgs_model_2$selected_var[[which.max(sgs_cr)]])
 ```
-This model obtains a peak accuracy of $88.3%$ using $70$ genes. So, changing $\alpha$ has lead to worse performance. This was to be expected, as by moving $\alpha$ away from $0.99$ we also moved the model closer to a gSLOPE model, which performs worse than SLOPE for the colitis data.
+This model obtains a peak accuracy of $88.3\%$ using $70$ genes. So, changing $\alpha$ has lead to worse performance. This was to be expected, as by moving $\alpha$ away from $0.99$ we also moved the model closer to a gSLOPE model, which performs worse than SLOPE for the colitis data.
 
 Next, we alter the penalty sequences through the choice of the FDR hyperparameters (`gFDR` and `vFDR`). I will set these to be significantly smaller, in the hope of inducing more sparsity in the model. The aim here is to try to remove as much noise from the model as possible (without removing all of the signal). 
 ```{r}
@@ -332,7 +350,7 @@ sgs_cr <- apply(sgs_preds$class, 2, function(x) mean(x == test_data$y))
 max(sgs_cr)
 length(sgs_model_3$selected_var[[which.max(sgs_cr)]])
 ```
-This model obtains a peak accuracy of $97.4%$ using only $9$ genes. Here, we have an example of how the sparse-group models can be powerful when implemented correctly. This is the highest predictive accuracy we have obtained so far.
+This model obtains a peak accuracy of $97.4\%$ using only $9$ genes. Here, we have an example of how the sparse-group models can be powerful when implemented correctly. This is the highest predictive accuracy we have obtained so far.
 
 ## Q9 (optional): apply SGS to the cancer data.
 ```{r}
@@ -366,7 +384,7 @@ max(sgs_df_cancer$classification_rate)
 
 length(sgs_model$selected_var[[which.max(sgs_df$classification_rate)]])
 ```
-SGS obtains a peak accuracy of $56.6$ using $23$ genes. However, we could try changing the sequence (as we did for Q8), to see if we get better performance
+SGS obtains a peak accuracy of $56.6\%$ using $23$ genes. However, we could try changing the sequence (as we did for Q8), to see if we get better performance
 ```{r}
 sgs_model_cancer_2 = fit_sgs(
   X = train_data_cancer$X,
@@ -396,27 +414,31 @@ We end the section by comparing all of the models on the cancer dataset.
 
 ### Number of non-zero coefficients
 ```{r}
-plot(apply(lasso_model_cancer$beta, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero")
+plot(apply(lasso_model_cancer$beta, 2, function(x) length(which(x!=0))), type="l", xlab="Lambda index", ylab = "Number non-zero",ylim=c(0,55))
 lines(apply(glasso_model_cancer$coefficients, 2, function(x) length(which(x!=0))), type="l", col = "red")
-lines(lapply(sgl_model_cancer$selected_var,length), type = "l", col = "brown")
+lines(unlist(lapply(sgl_model_cancer$selected_var,length)), type = "l", col = "brown")
 lines(apply(slope_model_cancer$nonzeros,3,sum), type = "l", col = "blue")
-lines(lapply(gslope_model_cancer$selected_var,length), type = "l", col = "green")
-lines(lapply(sgs_model_cancer$selected_var,length), type = "l", col = "purple")
-legend("topright", legend = c("Lasso", "gLasso", "SGL", "SLOPE", "gSLOPE", "SGS"),
+lines(unlist(lapply(gslope_model_cancer$selected_var,length)), type = "l", col = "green")
+lines(unlist(lapply(sgs_model_cancer$selected_var,length)), type = "l", col = "purple")
+legend("bottomright", legend = c("Lasso", "gLasso", "SGL", "SLOPE", "gSLOPE", "SGS"),
        col = c("black", "red", "brown", "blue", "green", "purple"), lty = 1)
 ```
 
+![VIM plot.](assets/images/soln_rd_7.png)
+
 ### Prediction accuracies
 ```{r}
-plot(lasso_df_cancer$classification_rate, type="l", xlab="Lambda index", ylab = "Number non-zero")
+plot(lasso_df_cancer$classification_rate, type="l", xlab="Lambda index", ylab = "Classification accuracy", ylim=c(0.3,0.6))
 lines(glasso_df_cancer$classification_rate, type="l", col = "red")
 lines(sgl_df_cancer$classification_rate, type = "l", col = "brown")
 lines(slope_df_cancer$classification_rate, type = "l", col = "blue")
 lines(gslope_df_cancer$classification_rate, type = "l", col = "green")
 lines(sgs_df_cancer$classification_rate, type = "l", col = "purple")
-legend("topright", legend = c("Lasso", "gLasso", "SGL", "SLOPE", "gSLOPE", "SGS"),
+legend("bottomright", legend = c("Lasso", "gLasso", "SGL", "SLOPE", "gSLOPE", "SGS"),
        col = c("black", "red", "brown", "blue", "green", "purple"), lty = 1)
 ```
+
+![VIM plot.](assets/images/soln_rd_8.png)
 
 ### Prediction accuracies on cancer dataset
 | Model    | Classification accuracy (%) | Genes used |
