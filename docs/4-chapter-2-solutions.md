@@ -46,7 +46,7 @@ We see that we are now using 65 $\lambda$ values. The default value for the func
 The `glmnet` function actually runs the elastic net model, which is defined by
 $$
 \hat{\beta}_\text{elastic net} = \min_\beta \left\{ \frac{1}{2}\left\|y- X \beta\right\|_2^2 + \lambda \alpha\left\| \beta \right\|_1+\lambda 
-\frac{1-\alpha}{2}\left\| \beta \right\|_2^2 \right\}.
+(1-\alpha)/2\left\| \beta \right\|_2^2 \right\}.
 $$
 It uses a combination of the lasso and ridge (similar to how SGL combines the lasso and group lasso), balanced through the $\alpha$ parameter. By default, $\alpha$ is set to 1, so that it reduces to the lasso, which is why we have not had to worry about it so far. However, elastic net has been proposed as an extension to the lasso which overcomes many of its issues, so we compare their performances here.
 ```{r}
@@ -89,10 +89,10 @@ cbind(beta, fit.cv.ridge$glmnet.fit$beta[,20], fit.cv.best$glmnet.fit$beta[,20])
 ## Q4 (optional): look at the glmnet documentation - which parameters might be interesting to vary?
 There are many options to alter in the `glmnet` function. Generally, it is best to leave them as default, as they have been set to sensible values by the authors, unless you have a reason to change them. Some ones of interest are:
 
--`alpha`: this is discussed in Q3.
--`standardize`: a TRUE/FALSE indicator as to whether the data is standardised. It is good practice to standardise data, so this should be left on. It is not a good idea to standardise the data yourself and then feed this to `glmnet`, because standardisation alters how $\lambda$ is used (it scales $\lambda$ in the backend).
--`intercept`: a TRUE/FALSE indicator as to whether an intercept is fit. Again, it is good practice to leave this on, unless you have a strong reason to believe that your regression lines goes through the origin (i.e., that your response is centered at 0, which is rare). You also should not center your response yourself, as again various changes occur in the backend if this is set to on. The two options describe show that you do not need to do these pre-processing steps yourself, `glmnet` will do it for you.
--`penalty.factor`: this allows you to use adaptive penalty weights, which leads to the *adaptive lasso* (as in SLOPE, see the optional section, although note that this function can not be used for SLOPE, due to the sorting algorithm). 
+- `alpha`: this is discussed in Q3.
+- `standardize`: a TRUE/FALSE indicator as to whether the data is standardised. It is good practice to standardise data, so this should be left on. It is not a good idea to standardise the data yourself and then feed this to `glmnet`, because standardisation alters how $\lambda$ is used (it scales $\lambda$ in the backend).
+- `intercept`: a TRUE/FALSE indicator as to whether an intercept is fit. Again, it is good practice to leave this on, unless you have a strong reason to believe that your regression lines goes through the origin (i.e., that your response is centered at 0, which is rare). You also should not center your response yourself, as again various changes occur in the backend if this is set to on. The two options describe show that you do not need to do these pre-processing steps yourself, `glmnet` will do it for you.
+- `penalty.factor`: this allows you to use adaptive penalty weights, which leads to the *adaptive lasso* (as in SLOPE, see the optional section, although note that this function can not be used for SLOPE, due to the sorting algorithm). 
 
 ## Q5: instead of using the predict function, manually code a prediction.
 A linear model is defined as
